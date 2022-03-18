@@ -113,7 +113,7 @@ class RecordCossim(RecordActivations):
                     df_row = {'set': s, 'alternative': a, 'n': n}
                     cs = self.compute_cosine_pair(images[0], images[1]) #, path_fig='')
                     df_row.update(cs)
-                    df = df.append(pd.DataFrame.from_dict(df_row))
+                    df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
 
                     if save_fig:
                         save_sets.append([conver_tensor_to_plot(i, norm.mean, norm.std) for i in images])
@@ -121,7 +121,8 @@ class RecordCossim(RecordActivations):
                             save_figs(path_save_fig + f's{s}_a{a}', save_sets, extra_info=affine_transf)
                             save_fig = False
                             save_sets = []
-        return df
+        all_layers = list(cs.keys())
+        return df, all_layers
 
 
 def compute_cossim_from_img(config):
@@ -137,22 +138,25 @@ def compute_cossim_from_img(config):
     transform = torchvision.transforms.Compose(transf_list)
 
     fill_bk = 'black' if config.background == 'black' or config.background == 'random' else config.background
+    debug_image_path = config.result_folder + '/debug_img/'
     pathlib.Path(os.path.dirname(config.result_folder)).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
+
     recorder = RecordCossim(net=config.model, use_cuda=False, only_save=config.save_layers)
-    cossim_df = recorder.compute_random_set(image_folder=config.image_folder,
+    cossim_df , layers_names = recorder.compute_random_set(image_folder=config.image_folder,
                                             transform=transform,
                                             fill_bk=fill_bk,
                                             affine_transf=config.affine_transf_code,
                                             N=config.rep,
-                                            path_save_fig=config.result_folder,
+                                            path_save_fig=debug_image_path,
                                             )
 
 
     save_path = config.result_folder + 'cossim.df'
     print(fg.red + f'Saved in {save_path}' + rs.fg)
 
-    pickle.dump({'layers_names': recorder.all_layers_names, 'cossim_df': cossim_df}, open(save_path, 'wb'))
-    return cossim_df, recorder.all_layers_names
+    pickle.dump({'layers_names': layers_names, 'cossim_df': cossim_df}, open(save_path, 'wb'))
+    return cossim_df, layers_names
 
 if __name__ == '__main__':
     from src.utils.misc import Config
@@ -168,11 +172,16 @@ if __name__ == '__main__':
                     rep=50
                     )
 
-    cossim_df, all_layers_names = compute_cossim_from_img(config)
+    cossim_df, layers_names = compute_cossim_from_img(config)
 
 
 ## Quick Analyiss
-    cossim_ll = cossim_df[['alternative'] + all_layers_names]
+    # all_layers_names = ['193: Conv2d', '197: Linear']
+    import pickle
+
+    pk = pickle.load(open('./results/NAPvsMP/cossim.df', 'rb'))
+    cossim_df, layers_names = pk['cossim_df'], pk['layers_names']
+    cossim_ll = cossim_df[['alternative'] + layers_names]
     m = cossim_ll.groupby('alternative').mean()
     std = cossim_ll.groupby('alternative').std()
     m_np = [m.iloc[i] for i in range(len(m))]
@@ -189,7 +198,7 @@ if __name__ == '__main__':
     plt.xticks(rotation=45)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(config.result_folder + '/plot_layers_{.png')
+    plt.savefig(config.result_folder + '/plot_layers.png')
     plt.legend()
 
 ##

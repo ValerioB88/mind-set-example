@@ -38,6 +38,7 @@ class RecordActivations:
         for idx, i in enumerate(all_layers):
             name = '{}: {}'.format(idx, str.split(str(i), '(')[0])
             if np.any([ii in name for ii in self.only_save]):
+                ## Watch out: not all of these layers will be used. Some networks have conditional layers depending on training/eval mode. The best way to get the right layers is to check those that are returned in "activation"
                 self.all_layers_names.append(name)
                 self.hook_lists.append(i.register_forward_hook(self.get_activation(name)))
         self.last_linear_layer = self.all_layers_names[-1]
