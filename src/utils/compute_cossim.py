@@ -94,15 +94,15 @@ class RecordCossim(RecordActivations):
         save_num_image_sets = 5
         all_files = glob.glob(image_folder + '/**')
 
-        sets = np.unique([re.search('([\d\w]+)_', i).groups()[0] for i in all_files])
+        sets = np.unique([re.search('([\d\w]+)_', os.path.basename(i)).groups()[0] for i in all_files])
         # num_sets = len(sets)
-        alternatives = np.unique([re.search('_([\d\w]+)', i).groups()[0] for i in all_files if re.search('_([\d\w]+)', i).groups()[0] != base_name])
-        # num_alternatives = len(alternatives)
+        levels = np.unique([re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] for i in all_files if re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] != base_name])
+        # num_levels = len(levels)
         df = pd.DataFrame([])
         save_sets = []
         for s in tqdm(sets):
             plt.close('all')
-            for a in alternatives:
+            for a in levels:
                 save_fig = True
                 for n in range(N):
                     im_0 = Image.open(image_folder + f'/{s}_{base_name}.png').convert('RGB')
@@ -111,7 +111,7 @@ class RecordCossim(RecordActivations):
                     images = [my_affine(im, translate=af['tr'], angle=af['rt'], scale=af['sc'], shear=af['sh'], interpolation=InterpolationMode.NEAREST, fill=fill_bk) for im in [im_0, im_i]]
 
                     images = [transform(i) for i in images]
-                    df_row = {'set': s, 'alternative': a, 'n': n}
+                    df_row = {'set': s, 'level': a, 'n': n}
                     cs = self.compute_cosine_pair(images[0], images[1]) #, path_fig='')
                     df_row.update(cs)
                     df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
@@ -119,7 +119,7 @@ class RecordCossim(RecordActivations):
                     if save_fig:
                         save_sets.append([conver_tensor_to_plot(i, norm.mean, norm.std) for i in images])
                         if len(save_sets) == save_num_image_sets:
-                            save_figs(path_save_fig + f's{s}_a{a}', save_sets, extra_info=affine_transf)
+                            save_figs(path_save_fig + f'{s}_{a}', save_sets, extra_info=affine_transf)
                             save_fig = False
                             save_sets = []
         all_layers = list(cs.keys())
