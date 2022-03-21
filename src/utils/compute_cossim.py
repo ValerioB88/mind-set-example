@@ -1,3 +1,4 @@
+import pickle
 from torchvision.transforms.functional import InterpolationMode
 import re
 import glob
@@ -19,7 +20,8 @@ from copy import deepcopy
 import torchvision
 from torchvision.transforms import RandomAffine, functional as F
 import PIL.Image as Image
-# %%
+
+
 def save_figs(path, set, extra_info='', n=None):
     fig, ax = plt.subplots(len(set) if n is None else n, 2)
     if np.ndim(ax) == 1:
@@ -87,15 +89,14 @@ class RecordCossim(RecordActivations):
 
         return cossim
 
-    def compute_random_set(self, image_folder, transform, fill_bk=None, affine_transf='', N=5, path_save_fig=None):
+    def compute_random_set(self, image_folder, transform, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
-        base_code = '0'
         save_num_image_sets = 5
         all_files = glob.glob(image_folder + '/**')
 
-        sets = np.unique([re.search('([0-9]+)_', i).groups()[0] for i in all_files])
+        sets = np.unique([re.search('([\d\w]+)_', i).groups()[0] for i in all_files])
         # num_sets = len(sets)
-        alternatives = np.unique([re.search('_([0-9]+)', i).groups()[0] for i in all_files if re.search('_([0-9]+)', i).groups()[0] != base_code])
+        alternatives = np.unique([re.search('_([\d\w]+)', i).groups()[0] for i in all_files if re.search('_([\d\w]+)', i).groups()[0] != base_name])
         # num_alternatives = len(alternatives)
         df = pd.DataFrame([])
         save_sets = []
@@ -104,7 +105,7 @@ class RecordCossim(RecordActivations):
             for a in alternatives:
                 save_fig = True
                 for n in range(N):
-                    im_0 = Image.open(image_folder + f'/{s}_{base_code}.png').convert('RGB')
+                    im_0 = Image.open(image_folder + f'/{s}_{base_name}.png').convert('RGB')
                     im_i = Image.open(image_folder + f'/{s}_{a}.png').convert('RGB')
                     af = get_new_affine_values(affine_transf)
                     images = [my_affine(im, translate=af['tr'], angle=af['rt'], scale=af['sc'], shear=af['sh'], interpolation=InterpolationMode.NEAREST, fill=fill_bk) for im in [im_0, im_i]]
@@ -149,10 +150,11 @@ def compute_cossim_from_img(config):
                                             affine_transf=config.affine_transf_code,
                                             N=config.rep,
                                             path_save_fig=debug_image_path,
+                                            base_name=config.base_name
                                             )
 
 
-    save_path = config.result_folder + 'cossim.df'
+    save_path = config.result_folder + '/cossim.df'
     print(fg.red + f'Saved in {save_path}' + rs.fg)
 
     pickle.dump({'layers_names': layers_names, 'cossim_df': cossim_df}, open(save_path, 'wb'))
@@ -169,37 +171,8 @@ if __name__ == '__main__':
                     result_folder=f'./results/NAPvsMP/',
                     background='black',
                     save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
-                    rep=50
+                    rep=2,
+                    base_name='base',
                     )
 
     cossim_df, layers_names = compute_cossim_from_img(config)
-
-
-## Quick Analyiss
-    # all_layers_names = ['193: Conv2d', '197: Linear']
-    import pickle
-
-    pk = pickle.load(open('./results/NAPvsMP/cossim.df', 'rb'))
-    cossim_df, layers_names = pk['cossim_df'], pk['layers_names']
-    cossim_ll = cossim_df[['alternative'] + layers_names]
-    m = cossim_ll.groupby('alternative').mean()
-    std = cossim_ll.groupby('alternative').std()
-    m_np = [m.iloc[i] for i in range(len(m))]
-    std_np = [std.iloc[i] for i in range(len(m))]
-## And Plot
-    import seaborn as sns
-    plt.close('all')
-    sns.set(style='white')
-    color_cycle = np.array(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-
-    for i in range(len(m_np)):
-        plt.plot(m_np[i], label=m_np[i].name, color=color_cycle[i], marker='o')
-        plt.fill_between(range(len(m_np[i])), m_np[i] - std_np[i], m_np[i] + std_np[i], alpha=0.2, color=color_cycle[i])
-    plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(config.result_folder + '/plot_layers.png')
-    plt.legend()
-
-##
-
