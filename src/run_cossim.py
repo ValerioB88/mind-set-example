@@ -11,8 +11,8 @@ def run(dataset_name, base_name):
                     pretraining='ImageNet',
                     image_folder=f'./data/{dataset_name}',
                     affine_transf_code='t[-0.2,0.2]s[1,1.2]r',
-                    result_folder=f'./results/{dataset_name}_{base_name}',
                     background='black',
+                    result_folder=f'./results/{dataset_name}_{base_name}',
                     save_layers=['Conv2d', 'Linear'],  # ReLU, MaxPool..
                     rep=50,
                     base_name=base_name
