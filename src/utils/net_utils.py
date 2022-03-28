@@ -148,9 +148,6 @@ def load_pretraining(net, pretraining, use_cuda=None):
 
 
 def print_net_info(net):
-    """
-    Get net must be reimplemented for any non abstract base class. It returns the network and the parameters to be updated during training
-    """
     num_trainable_params = 0
     tmp = ''
     print(fg.yellow)
