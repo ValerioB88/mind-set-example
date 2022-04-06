@@ -93,10 +93,15 @@ class RecordCossim(RecordActivations):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
         save_num_image_sets = 5
         all_files = glob.glob(image_folder + '/**')
+        levels = [os.path.basename(i) for i in glob.glob(image_folder + '/**')]
 
-        sets = np.unique([re.search('([\d\w]+)_', os.path.basename(i)).groups()[0] for i in all_files])
+        sets = [np.unique([os.path.splitext(os.path.basename(i))[0] for i in glob.glob(image_folder + f'/{l}/*')]) for l in levels]
+        assert np.all([len(sets[ix]) == len(sets[ix-1]) for ix in range(1, len(sets))]), "Length for one of the folder doesn't match other folder in the dataset"
+        assert np.all([np.all(sets[ix] == sets[ix-1]) for ix in range(1, len(sets))]), "All names in all folders in the dataset needs to match. Some name didn't match"
+        sets = sets[0]
+
         # num_sets = len(sets)
-        levels = np.unique([re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] for i in all_files if re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] != base_name])
+        # levels = np.unique([re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] for i in all_files if re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] != base_name])
         # num_levels = len(levels)
         df = pd.DataFrame([])
         save_sets = []
@@ -105,8 +110,8 @@ class RecordCossim(RecordActivations):
             for a in levels:
                 save_fig = True
                 for n in range(N):
-                    im_0 = Image.open(image_folder + f'/{s}_{base_name}.png').convert('RGB')
-                    im_i = Image.open(image_folder + f'/{s}_{a}.png').convert('RGB')
+                    im_0 = Image.open(image_folder + f'/{base_name}/{s}.png').convert('RGB')
+                    im_i = Image.open(image_folder + f'/{a}/{s}.png').convert('RGB')
                     af = get_new_affine_values(affine_transf)
                     images = [my_affine(im, translate=af['tr'], angle=af['rt'], scale=af['sc'], shear=af['sh'], interpolation=InterpolationMode.NEAREST, fill=fill_bk) for im in [im_0, im_i]]
 
