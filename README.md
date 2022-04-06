@@ -1,7 +1,7 @@
 # Mind Set Example Repo
 Example for datasets that will require cosine similarity.
 The general idea is that we want to measure the relative similarity of internal representation across different levels. For example, you want to check whether the internal representation of a "base" shape  is more similar to a shape with a metric property (MP) change vs a shape with a non-accidental-property (NAP) change. You might want to test that with many shapes and after several transformations. In this example the NAP vs MP are the levels. Different shapes are different samples
-The way to organize the dataset is as follow: each file should be named `sampleName_level.png`. For example `triangle_NAP.png`, `triangle_MP.png`, `triangle_base.png`, `square_NAP.png`, etc. All samples should be in the same folder.
+The way to organize the dataset is as follow: each level is in a different folder, and each sample has a different number or name. For example, you will have a dataset folder with the folders `NAP` and `MP`, each containing a file `triangle.png`, `square.png`. Notice that the name of the samples must much across folders, or an error is trhown.
 
 
 The main script you can take as an example is `src/run_cossim.py`. In there, I use the `Config` class as a C-like struct for all experiment parameters. This will then be passed to `compute_cossim_from_img` which will do all the work. Its output (a pandas datafraem) will be used to do some stats and plots. Here are some additional information for some of the parameters used in `compute_cossim_from_img`.
@@ -28,7 +28,7 @@ Indicate what layer type you want to compute the cosine similarity on. In practi
 Each sample will be computed `rep` times, each time with a different affine transformation.
 
 ## Base_Name
-When collecting the samples from the `image_folder` folder, the function `compute_cossim_from_img` will then compare the samples with the level equal to `base_name` to all the other levels. For example, in the NAP/MP example above, if the `base_name="base"` the function will compare `square_base.png` with `square_NAP.png`, and then `square_base.png` with `square_MP.png`, then `triangle_base` with `triangle_NP` and so on.
+When collecting the samples from the `image_folder` folder, the function `compute_cossim_from_img` will then compare the samples with the level equal to `base_name` to all the other levels. For example, in the NAP/MP example above, if the `base_name="base"` the function will compare `base/square.png` with `NAP/square.png`, and then `base/square.png` with `MP/square.png`, then `base/triangle.png` with `NP/triangle.png` and so on.
 
 -----
 `compute_cossim_from_img` will return a pandas dataframe, and a list of all layers which activation has been used for computing the cosine similarity.
