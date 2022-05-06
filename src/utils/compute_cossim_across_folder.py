@@ -30,7 +30,7 @@ from src.utils.misc import get_new_affine_values, my_affine, save_figs
 from src.utils.activation_recorder import RecordCossim
 
 class RecordCossimAcrossFolders(RecordCossim):
-    def compute_random_set(self, image_folder, transform, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):
+    def compute_random_set(self, image_folder, transform, matching_transform=False, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
         save_num_image_sets = 5
         all_files = glob.glob(image_folder + '/**')
@@ -50,8 +50,8 @@ class RecordCossimAcrossFolders(RecordCossim):
                 for n in range(N):
                     im_0 = Image.open(image_folder + f'/{base_name}/{s}.png').convert('RGB')
                     im_i = Image.open(image_folder + f'/{a}/{s}.png').convert('RGB')
-                    af = get_new_affine_values(affine_transf)
-                    images = [my_affine(im, translate=af['tr'], angle=af['rt'], scale=af['sc'], shear=af['sh'], interpolation=InterpolationMode.NEAREST, fill=fill_bk) for im in [im_0, im_i]]
+                    af = [get_new_affine_values(affine_transf) for i in [im_0, im_i]] if not matching_transform else [get_new_affine_values(affine_transf)] * 2
+                    images = [my_affine(im, translate=af[idx]['tr'], angle=af[idx]['rt'], scale=af[idx]['sc'], shear=af[idx]['sh'], interpolation=InterpolationMode.NEAREST, fill=fill_bk) for idx, im in enumerate([im_0, im_i])]
 
                     images = [transform(i) for i in images]
                     df_row = {'set': s, 'level': a, 'n': n}
@@ -89,7 +89,8 @@ def compute_cossim_from_img(config):
     recorder = RecordCossimAcrossFolders(net=config.model, use_cuda=False, only_save=config.save_layers)
     cossim_df, layers_names = recorder.compute_random_set(image_folder=config.image_folder,
                                                            transform=transform,
-                                                           fill_bk=fill_bk,
+                                                           matching_transform=config.matching_transform,
+                                                          fill_bk=fill_bk,
                                                            affine_transf=config.affine_transf_code,
                                                            N=config.rep,
                                                            path_save_fig=debug_image_path,

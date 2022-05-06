@@ -1,14 +1,13 @@
 """
-Given a dataset folder `./data/xx/` and a base folder, it compares each sample in each folder with the base folder, e.g
+Given a dataset folder `./data/xx/` and a base IMAGE, it compares the base image for each image in the target folder
     `./data/xx/base/0.png` vs `./data/xx/comp1/0.png`,
-    `./data/xx/base/1.png` vs  `./data/xx/comp1/1.png`,
+    `./data/xx/base/0.png` vs  `./data/xx/comp1/1.png`,
     .
     .
     .
     `./data/xx/base/0.png` vs `./data/xx/comp2/0.png`,
     .
     .
-The number of samples in each folder must match.
 Each comparison is done multiple time at different transformations
 """
 from torchvision.transforms.functional import InterpolationMode
