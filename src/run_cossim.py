@@ -4,7 +4,7 @@ from src.utils.misc import Config
 import pickle
 import sty
 import pandas as pd
-from src.utils.compute_cossim import compute_cossim_from_img
+from src.utils.compute_cossim_across_folder import compute_cossim_from_img
 
 def run(dataset_name, base_name):
     config = Config(network_name='inception_v3',

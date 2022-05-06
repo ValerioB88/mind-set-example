@@ -1,10 +1,9 @@
 import torch
 import sty
 import numpy as np
-from abc import ABC, abstractmethod
-from enum import Enum
-from tqdm import tqdm
 from typing import List
+from src.utils.net_utils import make_cuda
+from copy import deepcopy
 
 
 class RecordActivations:
@@ -67,4 +66,30 @@ class RecordActivations:
         if self.was_train:
             self.net.train()
 
+
+class RecordCossim(RecordActivations):
+    def compute_cosine_pair(self, image0, image1):# path_save_fig, stats):
+        cossim = {}
+
+        self.net(make_cuda(image0.unsqueeze(0), torch.cuda.is_available()))
+        first_image_act = {}
+        activation_image1 = deepcopy(self.activation)
+        for name, features1 in self.activation.items():
+            if not np.any([i in name for i in self.only_save]):
+                continue
+            first_image_act[name] = features1.flatten()
+
+        self.net(make_cuda(image1.unsqueeze(0), torch.cuda.is_available()))
+        activation_image2 = deepcopy(self.activation)
+
+        second_image_act = {}
+        for name, features2 in self.activation.items():
+            if not np.any([i in name for i in self.only_save]):
+                continue
+            second_image_act[name] = features2.flatten()
+            if name not in cossim:
+                cossim[name] = []
+            cossim[name].append(torch.nn.CosineSimilarity(dim=0)(first_image_act[name], second_image_act[name]).item())
+
+        return cossim
 

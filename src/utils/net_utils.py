@@ -127,7 +127,7 @@ def prepare_network(net, config, train=True):
     net.cuda() if config.use_cuda else None
     cudnn.benchmark = True
     net.train() if train else net.eval()
-    print_net_info(net) if config.verbose else None
+    # print_net_info(net) if config.verbose else None
 
 
 def load_pretraining(net, pretraining, use_cuda=None):
