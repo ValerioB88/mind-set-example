@@ -1,15 +1,14 @@
 import sty
-import pickle
 from torchvision.transforms.functional import InterpolationMode
 import re
 import glob
 import pandas as pd
 from src.utils.net_utils import GrabNet, prepare_network, make_cuda
-from src.cosine_similarity_method.utils.activation_recorder import RecordActivations
+from src.utils.cosine_similarity.activation_recorder import RecordActivations
 from src.utils.misc import conver_tensor_to_plot
 import matplotlib.pyplot as plt
 import numpy as np
-from sty import fg, bg, rs, ef
+from sty import fg, rs
 import pickle
 import torch
 import os
@@ -18,7 +17,7 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 from copy import deepcopy
 import torchvision
-from torchvision.transforms import RandomAffine, functional as F
+from torchvision.transforms import functional as F
 import PIL.Image as Image
 
 
@@ -93,7 +92,8 @@ class RecordCossim(RecordActivations):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
         save_num_image_sets = 5
         levels = [os.path.basename(i) for i in glob.glob(image_folder + '/**')]
-
+        if not levels:
+            assert False
         sets = [np.unique([os.path.splitext(os.path.basename(i))[0] for i in glob.glob(image_folder + f'/{l}/*')]) for l in levels]
         assert np.all([len(sets[ix]) == len(sets[ix-1]) for ix in range(1, len(sets))]), "Length for one of the folder doesn't match other folder in the dataset"
         assert np.all([np.all(sets[ix] == sets[ix-1]) for ix in range(1, len(sets))]), "All names in all folders in the dataset needs to match. Some name didn't match"

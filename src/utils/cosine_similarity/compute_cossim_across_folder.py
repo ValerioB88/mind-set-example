@@ -2,11 +2,11 @@
 from torchvision.transforms.functional import InterpolationMode
 import glob
 import pandas as pd
-from src.utils.net_utils import GrabNet, prepare_network, make_cuda
+from src.utils.net_utils import GrabNet, prepare_network
 from src.utils.misc import conver_tensor_to_plot
 import matplotlib.pyplot as plt
 import numpy as np
-from sty import fg, bg, rs, ef
+from sty import fg, rs
 import pickle
 import os
 import pathlib
@@ -14,8 +14,8 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 import torchvision
 import PIL.Image as Image
-from src.cosine_similarity_method.utils.misc import get_new_affine_values, my_affine, save_figs
-from src.cosine_similarity_method.utils.activation_recorder import RecordCossim
+from src.utils.cosine_similarity.misc import get_new_affine_values, my_affine, save_figs
+from src.utils.cosine_similarity.activation_recorder import RecordCossim
 
 class RecordCossimAcrossFolders(RecordCossim):
     def compute_random_set(self, image_folder, transform, matching_transform=False, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):

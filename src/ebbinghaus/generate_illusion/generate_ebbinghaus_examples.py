@@ -1,4 +1,4 @@
-from src.ebbinghaus_illusion.generate_illusion.drawing_utils import DrawShape
+from src.ebbinghaus.generate_illusion.drawing_utils import DrawShape
 from functools import partial
 import numpy as np
 import pathlib

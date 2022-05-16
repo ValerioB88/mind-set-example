@@ -17,11 +17,11 @@ import matplotlib.pyplot as plt
 from src.utils.misc import ConfigSimple
 import pickle
 import sty
-from src.cosine_similarity_method.utils.compute_cossim import compute_cossim_from_img
+from src.utils.cosine_similarity.compute_cossim import compute_cossim_from_img
 color_cycle = np.tile(np.array(plt.rcParams['axes.prop_cycle'].by_key()['color']), (3, 1))
 
-dataset_name = 'ebbinghaus'
-base_name = 'large'
+dataset_name = 'NAPvsMP'
+base_name = 'base'
 
 config = ConfigSimple(network_name='inception_v3',
                       pretraining='ImageNet',

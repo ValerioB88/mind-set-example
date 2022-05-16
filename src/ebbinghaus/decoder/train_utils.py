@@ -1,7 +1,6 @@
 import torch
 import torchvision
 from torch import nn as nn
-
 from src.utils.net_utils import make_cuda
 
 
@@ -22,9 +21,7 @@ def decoder_step(data, model, loss_fn, optimizer, use_cuda, logs, train, **kwarg
     logs['ema_loss'].add(loss.item())
     [logs[f'ema_rmse_{idx}'].add(torch.sqrt(ms)) for idx, ms in enumerate(mse_dec)]
     logs[f'ema_mse'].add(loss_fn(predicted, ground))
-
     logs[f'ca_mse'].add(loss_fn(predicted, ground))
-
     logs['y_true'] = ground
     logs['y_pred'] = predicted
     if 'collect_data' in kwargs and kwargs['collect_data']:

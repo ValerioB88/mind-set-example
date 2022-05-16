@@ -1,9 +1,9 @@
 """
 General training script for decoder approach. The only thing you need to change is the loading `DATASET` variable. Note that in this case the EbbinghausTrain dataset is always generated on the fly (but you could specify the kwarg "path" to save/load it on disk).
 """
-from src.ebbinghaus_illusion.ebbinghaus_datasets import EbbinghausTrain
+from src.ebbinghaus.ebbinghaus_datasets import EbbinghausRandomFlankers
 from src.utils.Config import Config
-from src.decoder_method.train_utils import decoder_step, ResNet152decoders, config_to_path_train
+from src.ebbinghaus.decoder.train_utils import decoder_step, ResNet152decoders, config_to_path_train
 from src.utils.dataset_utils import add_compute_stats
 from src.utils.net_utils import prepare_network, ExpMovingAverage, CumulativeAverage, run
 from torch.utils.data import DataLoader
@@ -12,20 +12,17 @@ from src.utils.callbacks import *
 import torchvision
 
 
-img_size = 75
-DATASET = EbbinghausTrain
-dataset_args = dict(size_dataset=9800, img_size=img_size, background='black')
 
 config = Config(stop_when_train_acc_is=95,
                 cuda_device_num=0,
                 project_name='Ebbinghaus',
                 batch_size=64,
                 network_name='resnet152',
-                weblogger=0,  #set to "2" if you want to log into neptune client - if you do, you need to have an API token set (see neptune website). Otherwise put to 0.
+                weblogger=False,  #set to True if you want to log into neptune client - if you do, you need to have an API token set (see neptune website). Otherwise put to 0.
                 pretraining='vanilla',
                 continue_train=False,  # watch out! With adam opt, setting this to True will not work as you intend!
                 learning_rate=0.000001,
-                img_size=img_size,
+                img_size=75,
                 clip_grad_norm=0.5,
                 weight_decay=0.0,
                 is_pycharm=True if 'PYCHARM_HOSTED' in os.environ else False)
@@ -49,31 +46,38 @@ config.optimizer = torch.optim.Adam(config.net.parameters(),
 
 prepare_network(config.net, config, config.optimizer)
 
-train_dataset = add_compute_stats(DATASET)(name_ds='train', add_PIL_transforms=[torchvision.transforms.Resize(224)], stats='ImageNet', *dataset_args)
-
+train_dataset = EbbinghausRandomFlankers(size_dataset=9800, img_size=config.img_size, background='black')
+train_dataset.name_ds = 'train'
+train_dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]} # ImageNet stats
+train_dataset.transform = torchvision.transforms.Compose([torchvision.transforms.Resize(224), torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=train_dataset.stats['mean'],
+                                                         std=train_dataset.stats['std'])])
 
 
 train_loader = DataLoader(train_dataset,
-                           batch_size=config.batch_size,
-                           drop_last=True,
-                           shuffle=True,
-                           num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
-                           timeout=0 if config.use_cuda and not config.is_pycharm else 0,
-                           pin_memory=True)
+                          batch_size=config.batch_size,
+                          drop_last=True,
+                          shuffle=True,
+                          num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
+                          timeout=0 if config.use_cuda and not config.is_pycharm else 0,
+                          pin_memory=True)
 
 weblog_dataset_info(train_loader, weblogger=config.weblogger, num_batches_to_log=1, log_text='train') if config.weblogger else None
 
 
-test_dataset = add_compute_stats(DATASET)(name_ds='test', add_PIL_transforms=[torchvision.transforms.Resize(224)], stats='ImageNet', size_dataset=200, img_size=config.img_size, background='black')
+test_dataset = EbbinghausRandomFlankers(size_dataset=200, img_size=config.img_size, background='black')
+test_dataset.name_ds = 'test'
+test_dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}
+test_dataset.transform = torchvision.transforms.Compose([torchvision.transforms.Resize(224), torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=test_dataset.stats['mean'],
+                                                         std=test_dataset.stats['std'])])
 
 
 test_datasets = [test_dataset]
 test_loaders = [DataLoader(td,
-                          batch_size=config.batch_size,
-                          drop_last=True,
-                          num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
-                          timeout=0 if config.use_cuda and not config.is_pycharm else 0,
-                          pin_memory=True) for td in test_datasets]
+                           batch_size=config.batch_size,
+                           drop_last=True,
+                           num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
+                           timeout=0 if config.use_cuda and not config.is_pycharm else 0,
+                           pin_memory=True) for td in test_datasets]
 
 [weblog_dataset_info(td, weblogger=config.weblogger, num_batches_to_log=1, log_text='test') for td in test_loaders]
 

@@ -32,7 +32,7 @@ class Config:
             for i in sorted(PARAMS.keys()):
                 print(f'\t{i} : ' + ef.inverse + f'{PARAMS[i]}' + rs.inverse)
 
-        if self.weblogger == 2:
+        if self.weblogger:
             try:
                 neptune_run = neptune.init(f'valeriobiscione/{self.project_name}')
                 neptune_run["sys/tags"].add(list_tags)
@@ -40,5 +40,5 @@ class Config:
                 self.weblogger = neptune_run
             except:
                 print("Initializing neptune didn't work, maybe you don't have neptune installed or you haven't set up the API token (https://docs.neptune.ai/getting-started/installation). Neptune logging won't be used")
-                self.weblogger = 0
+                self.weblogger = False
         print(rs.fg)

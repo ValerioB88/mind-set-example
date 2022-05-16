@@ -70,7 +70,7 @@ def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1,
         if idx + 1 >= num_batches_to_log:
             break
 
-def plot_images_on_weblogger(data, stats, weblogger=2, text='', **kwargs):# images, labels, more, log_text, weblogger=2):
+def plot_images_on_weblogger(data, stats, weblogger, text='', **kwargs):
     images, labels, *more = data
     plot_images = images[0:np.max((4, len(images)))]
     metric_str = 'Debug/{} example images'.format(text)

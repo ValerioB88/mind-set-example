@@ -6,7 +6,7 @@ import numpy as np
 import sty
 import torch
 
-from src.ebbinghaus_illusion.generate_illusion.drawing_utils import DrawShape
+from src.ebbinghaus.generate_illusion.drawing_utils import DrawShape
 
 
 class StaticDataEbbinghaus:
@@ -40,7 +40,7 @@ class StaticDataEbbinghaus:
                torch.tensor(self.labels[idx])
 
 
-class EbbinghausTrain(StaticDataEbbinghaus):
+class EbbinghausRandomFlankers(StaticDataEbbinghaus):
     def __init__(self, img_size, *args, background='black',  **kwargs):
         img_size = (img_size, img_size)
         ds = DrawShape(background=background, img_size=img_size, resize_up_resize_down=True)

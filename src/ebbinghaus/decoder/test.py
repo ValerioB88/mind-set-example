@@ -3,14 +3,14 @@ This tests for the ebbinghaus illusion. Run it after having run "train".
 The main things to change for other experiments are the testing datasets. Here I use EbbinghausTrain (I test on the train set, just to check all is ok), and the crucial EbbinghausTestSmallFlankers/EbbinghausTestBigFlankers
 """
 import torch.nn
-from src.ebbinghaus_illusion.ebbinghaus_datasets import EbbinghausTrain, EbbinghausTestBigFlankers, EbbinghausTestSmallFlankers
+from src.ebbinghaus.ebbinghaus_datasets import EbbinghausRandomFlankers, EbbinghausTestBigFlankers, EbbinghausTestSmallFlankers
 from src.utils.dataset_utils import add_compute_stats
 from src.utils.net_utils import run, CumulativeAverage
 from src.utils.Config import Config
 from src.utils.net_utils import prepare_network
 from torch.utils.data import DataLoader
 from src.utils.callbacks import *
-from src.decoder_method.train_utils import *
+from src.ebbinghaus.decoder.train_utils import *
 from src.utils.misc import weblog_dataset_info
 
 
@@ -20,7 +20,7 @@ config = Config(stop_when_train_acc_is=95,
                 project_name='Ebbinghaus',
                 batch_size=64,
                 network_name='resnet152',
-                weblogger=0,  # set to "2" if you want to log into neptune client - if you do, you need to have an API token set (see neptune website). Otherwise put to 0.
+                weblogger=False,  # set to True if you want to log into neptune client - if you do, you need to have an API token set (see neptune website). Otherwise put to 0.
                 pretraining='vanilla',
                 continue_train=True,
                 learning_rate=0.0001,
@@ -41,10 +41,18 @@ prepare_network(config.net, config)
 for param in config.net.net.parameters():
     param.requires_grad = False
 
+def add_info_to_dataset(ds, name):
+    ds.name_ds = name
+    ds.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}  # ImageNet stats
+    ds.transform = torchvision.transforms.Compose([torchvision.transforms.Resize(224), torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=ds.stats['mean'], std=ds.stats['std'])])
 
-test_dataset = add_compute_stats(EbbinghausTrain)(name_ds='test', add_PIL_transforms=[torchvision.transforms.Resize(224)], stats='ImageNet', size_dataset=200, img_size=config.img_size, background='black')
-test_dataset_small = add_compute_stats(EbbinghausTestSmallFlankers)(name_ds='test_small_fl', add_PIL_transforms=[torchvision.transforms.Resize(224)], stats='ImageNet', size_dataset=200, img_size=config.img_size, background='black')
-test_dataset_big = add_compute_stats(EbbinghausTestBigFlankers)(name_ds='test_big_fl', add_PIL_transforms=[torchvision.transforms.Resize(224)], stats='ImageNet', size_dataset=200, img_size=config.img_size, background='black')
+
+test_dataset = EbbinghausRandomFlankers(size_dataset=200, img_size=config.img_size, background='black')
+add_info_to_dataset(test_dataset, 'test')
+test_dataset_small = EbbinghausTestSmallFlankers(size_dataset=200, img_size=config.img_size, background='black')
+add_info_to_dataset(test_dataset_small, 'small')
+test_dataset_big = EbbinghausTestBigFlankers(size_dataset=200, img_size=config.img_size, background='black')
+add_info_to_dataset(test_dataset_big, 'big')
 
 test_datasets = [test_dataset, test_dataset_big, test_dataset_small]
 test_loaders = [DataLoader(td,
@@ -72,7 +80,7 @@ def call_run(loader, train, callbacks, **kwargs):
     logs = {f'ca_me_{i}': CumulativeAverage() for i in range(5)}
     logs.update({f'me_list_{i}': [] for i in range(5)})
     print(sty.fg.red + sty.ef.inverse + f"***** DATASET {loader.dataset.name_ds} *****" + sty.rs.fg + sty.rs.ef)
-    _, logs= run(loader,
+    _, logs = run(loader,
                use_cuda=config.use_cuda,
                net=config.net,
                callbacks=callbacks,
