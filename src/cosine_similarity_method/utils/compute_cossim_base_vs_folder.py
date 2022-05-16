@@ -1,15 +1,3 @@
-"""
-Given a dataset folder `./data/xx/` and a base IMAGE, it compares the base image for each image in the target folder
-    `./data/xx/base/0.png` vs `./data/xx/comp1/0.png`,
-    `./data/xx/base/0.png` vs  `./data/xx/comp1/1.png`,
-    .
-    .
-    .
-    `./data/xx/base/0.png` vs `./data/xx/comp2/0.png`,
-    .
-    .
-Each comparison is done multiple time at different transformations
-"""
 from torchvision.transforms.functional import InterpolationMode
 import glob
 import pandas as pd
@@ -25,8 +13,8 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 import torchvision
 import PIL.Image as Image
-from src.utils.misc import get_new_affine_values, my_affine, save_figs
-from src.utils.activation_recorder import RecordCossim
+from src.cosine_similarity_method.utils.misc import get_new_affine_values, my_affine, save_figs
+from src.cosine_similarity_method.utils.activation_recorder import RecordCossim
 
 class RecordCossimImgBaseVsFolder(RecordCossim):
     def compute_random_set(self, folder, transform, matching_transform=False, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_image='base.png'):
@@ -98,19 +86,19 @@ def compute_cossim_from_img(config):
     return cossim_df, layers_names
 
 if __name__ == '__main__':
-    from src.utils.misc import Config
+    from src.utils.misc import ConfigSimple
 
-    config = Config(project_name='MindSet',
-                    network_name='inception_v3',
-                    pretraining='ImageNet',
-                    affine_transf_code='t[-0.2, 0.2]s[0.5,0.9]r',
-                    result_folder=f'./results/closure/square/full_vs_segm/',
-                    background='black',
-                    matching_transform=True,
-                    save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
-                    rep=2,
-                    base_image='./data/closure/square/normal_full/0.png',
-                    folder='./data/closure/square/angles_rnd/',
-                    )
+    config = ConfigSimple(project_name='MindSet',
+                          network_name='inception_v3',
+                          pretraining='ImageNet',
+                          affine_transf_code='t[-0.2, 0.2]s[0.5,0.9]r',
+                          result_folder=f'./results/closure/square/full_vs_segm/',
+                          background='black',
+                          matching_transform=True,
+                          save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
+                          rep=2,
+                          base_image='./data/closure/square/normal_full/0.png',
+                          folder='./data/closure/square/angles_rnd/',
+                          )
 
     cossim_df, layers_names = compute_cossim_from_img(config)

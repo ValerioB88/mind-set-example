@@ -80,27 +80,50 @@ class DrawShape():
 
         return wrap
 
-    def circle(self, draw, center, radius):
+    def circle(self, draw, center, radius, fill=None):
+        if not fill:
+            fill = self.fill
         draw.ellipse((center[0] - radius + 1,
                       center[1] - radius + 1,
                       center[0] + radius - 1,
-                      center[1] + radius - 1), fill=self.fill, outline=None)
+                      center[1] + radius - 1), fill=fill, outline=None)
 
     @resize_up_down
-    def create_ebbinghaus(self, r_c, d=0, r2=0, n=0, shift=0):
+    def create_ebbinghaus(self, r_c, d=0, r2=0, n=0, shift=0, colour_center_circle=(255, 255, 255), img=None):
         """
         Parameters r_c, d, and r2, are relative to the total image size.
         If you only want to generate the center circle, leave d to 0.
+        r_c : radius of the center circle
+        d : distance to flankers
+        r2 : radius flankers
+        n : 0 number flankers
+        shift : flankers rotations around center circle [0, pi]
         """
-        img = self.create_canvas()
+        if img is None:
+            img = self.create_canvas()
         draw = ImageDraw.Draw(img)
-        self.circle(draw, self.img_size/2, self.img_size[0]*r_c)
         if d != 0:
             thetas = np.linspace(0, np.pi*2, n, endpoint=False) + shift
-            dd = self.img_size[0]*d
+            dd = img.size[0]*d
             vect = [[np.cos(t)*dd, np.sin(t)*dd] for t in thetas]
-            [self.circle(draw, np.array(vv) + self.img_size/2, self.img_size[0]*r2) for vv in vect]
+            [self.circle(draw, np.array(vv) + img.size/2, img.size[0]*r2) for vv in vect]
         # img = self.apply_antialiasing(img)
+        self.circle(draw, np.array(img.size)/2, img.size[0]*r_c, fill=colour_center_circle)
+
+        return img
+
+    def create_random_ebbinghaus(self, r_c, n=0, flankers_size_range=(0.1, 0.5), colour_center_circle=(255, 255, 255)):
+        gen_rnd = lambda r: np.random.uniform(*r)
+
+        img = self.create_canvas()
+        draw = ImageDraw.Draw(img)
+
+        for i in range(n):
+            random_points = [np.random.randint(self.img_size[0]), np.random.randint(self.img_size[1])]
+            random_size = self.img_size[0]*gen_rnd(flankers_size_range)
+            self.circle(draw, np.array(random_points), random_size)
+        self.circle(draw, self.img_size/2, self.img_size[0]*r_c, fill=colour_center_circle)
+
         return img
 
     def apply_antialiasing(self, im):

@@ -5,7 +5,7 @@ import re
 import glob
 import pandas as pd
 from src.utils.net_utils import GrabNet, prepare_network, make_cuda
-from src.utils.activation_recorder import RecordActivations
+from src.cosine_similarity_method.utils.activation_recorder import RecordActivations
 from src.utils.misc import conver_tensor_to_plot
 import matplotlib.pyplot as plt
 import numpy as np
@@ -92,7 +92,6 @@ class RecordCossim(RecordActivations):
     def compute_random_set(self, image_folder, transform, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
         save_num_image_sets = 5
-        all_files = glob.glob(image_folder + '/**')
         levels = [os.path.basename(i) for i in glob.glob(image_folder + '/**')]
 
         sets = [np.unique([os.path.splitext(os.path.basename(i))[0] for i in glob.glob(image_folder + f'/{l}/*')]) for l in levels]
@@ -100,9 +99,6 @@ class RecordCossim(RecordActivations):
         assert np.all([np.all(sets[ix] == sets[ix-1]) for ix in range(1, len(sets))]), "All names in all folders in the dataset needs to match. Some name didn't match"
         sets = sets[0]
 
-        # num_sets = len(sets)
-        # levels = np.unique([re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] for i in all_files if re.search('_([\d\w]+)', os.path.basename(i)).groups()[0] != base_name])
-        # num_levels = len(levels)
         df = pd.DataFrame([])
         for a in tqdm(levels):
             save_sets = []
@@ -169,18 +165,18 @@ def compute_cossim_from_img(config):
     return cossim_df, layers_names
 
 if __name__ == '__main__':
-    from src.utils.misc import Config
+    from src.utils.misc import ConfigSimple
 
-    config = Config(project_name='MindSet',
-                    network_name='inception_v3',
-                    pretraining='ImageNet',
-                    image_folder='./data/NAPvsMP',
-                    affine_transf_code='t[-0.2, 0.2]s[1,1.2]r',
-                    result_folder=f'./results/NAPvsMP/',
-                    background='black',
-                    save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
-                    rep=2,
-                    base_name='base',
-                    )
+    config = ConfigSimple(project_name='MindSet',
+                          network_name='inception_v3',
+                          pretraining='ImageNet',
+                          image_folder='./data/NAPvsMP',
+                          affine_transf_code='t[-0.2, 0.2]s[1,1.2]r',
+                          result_folder=f'./results/NAPvsMP/',
+                          background='black',
+                          save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
+                          rep=2,
+                          base_name='base',
+                          )
 
     cossim_df, layers_names = compute_cossim_from_img(config)
