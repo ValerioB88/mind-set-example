@@ -2,16 +2,15 @@
 This tests for the ebbinghaus illusion. Run it after having run "train".
 The main things to change for other experiments are the testing datasets. Here I use EbbinghausTrain (I test on the train set, just to check all is ok), and the crucial EbbinghausTestSmallFlankers/EbbinghausTestBigFlankers
 """
-
 import torch.nn
+from src.ebbinghaus_illusion.ebbinghaus_datasets import EbbinghausTrain, EbbinghausTestBigFlankers, EbbinghausTestSmallFlankers
 from src.utils.dataset_utils import add_compute_stats
 from src.utils.net_utils import run, CumulativeAverage
 from src.utils.Config import Config
 from src.utils.net_utils import prepare_network
 from torch.utils.data import DataLoader
 from src.utils.callbacks import *
-from src.ebbinghaus_illusion.decoder_method.dataset_utils import *
-from src.ebbinghaus_illusion.decoder_method.train_utils import *
+from src.decoder_method.train_utils import *
 from src.utils.misc import weblog_dataset_info
 
 
@@ -31,7 +30,7 @@ config = Config(stop_when_train_acc_is=95,
                 is_pycharm=True if 'PYCHARM_HOSTED' in os.environ else False)
 
 torch.cuda.set_device(config.cuda_device_num) if torch.cuda.is_available() else None
-config.net = ResNet152_w_decoders(imagenet_pt=True)
+config.net = ResNet152decoders(imagenet_pt=True)
 
 config.model_output_filename = './models/' + config_to_path_train(config) + '.pt'
 

@@ -1,14 +1,12 @@
 """
 General training script for decoder approach. The only thing you need to change is the loading `DATASET` variable. Note that in this case the EbbinghausTrain dataset is always generated on the fly (but you could specify the kwarg "path" to save/load it on disk).
 """
-
-
+from src.ebbinghaus_illusion.ebbinghaus_datasets import EbbinghausTrain
 from src.utils.Config import Config
-from src.ebbinghaus_illusion.decoder_method.train_utils import decoder_step, ResNet152_w_decoders, config_to_path_train
+from src.decoder_method.train_utils import decoder_step, ResNet152decoders, config_to_path_train
 from src.utils.dataset_utils import add_compute_stats
 from src.utils.net_utils import prepare_network, ExpMovingAverage, CumulativeAverage, run
 from torch.utils.data import DataLoader
-from src.ebbinghaus_illusion.decoder_method.dataset_utils import *
 from src.utils.misc import weblog_dataset_info
 from src.utils.callbacks import *
 import torchvision
@@ -33,7 +31,7 @@ config = Config(stop_when_train_acc_is=95,
                 is_pycharm=True if 'PYCHARM_HOSTED' in os.environ else False)
 
 torch.cuda.set_device(config.cuda_device_num) if torch.cuda.is_available() else None
-config.net = ResNet152_w_decoders(imagenet_pt=True)
+config.net = ResNet152decoders(imagenet_pt=True)
 
 config.model_output_filename = './models/' + config_to_path_train(config) + '.pt'
 

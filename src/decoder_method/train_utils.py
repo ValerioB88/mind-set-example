@@ -35,11 +35,12 @@ def decoder_step(data, model, loss_fn, optimizer, use_cuda, logs, train, **kwarg
 
     return loss, ground, predicted, logs
 
+
 def config_to_path_train(config):
     return f"{config.network_name}"
 
 
-class ResNet152_w_decoders(nn.Module):
+class ResNet152decoders(nn.Module):
     def __init__(self, imagenet_pt, **kwargs):
         cuda = torch.cuda.is_available()
         super().__init__()

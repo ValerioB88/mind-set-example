@@ -1,10 +1,13 @@
-import pickle
 import os
-import sty
 import pathlib
+import pickle
+
 import numpy as np
-from src.ebbinghaus_illusion.generate_illusion.drawing_utils import DrawShape
+import sty
 import torch
+
+from src.ebbinghaus_illusion.generate_illusion.drawing_utils import DrawShape
+
 
 class StaticDataEbbinghaus:
     def __init__(self, fun, size_dataset, path=None):
@@ -76,6 +79,3 @@ class EbbinghausTestSmallFlankers(StaticDataEbbinghaus):
             img = ds.create_ebbinghaus(r_c=r_c, d=0.02 + (r_c + r2), r2=r2, n=n_small, shift=shift, colour_center_circle=(255, 0, 0))
             return img, r_c
         super().__init__(function, *args, **kwargs)
-
-
-
