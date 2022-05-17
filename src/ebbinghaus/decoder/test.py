@@ -34,12 +34,9 @@ config.net = ResNet152decoders(imagenet_pt=True)
 
 config.model_output_filename = './models/' + config_to_path_train(config) + '.pt'
 
-if config.continue_train:
-    config.pretraining = config.model_output_filename
+config.pretraining = config.model_output_filename
 
 prepare_network(config.net, config)
-for param in config.net.net.parameters():
-    param.requires_grad = False
 
 def add_info_to_dataset(ds, name):
     ds.name_ds = name

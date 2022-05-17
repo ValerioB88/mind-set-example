@@ -50,8 +50,17 @@ def convert_normalized_tensor_to_plottable_array(tensor, mean, std, text):
 
 def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1, plotter=None, num_batches_to_log=2):
     stats = {}
+    def simple_plotter(idx, data):
+        images, labels, *more = data
+        plot_images = images[0:np.max((4, len(images)))]
+        metric_str = 'Debug/{} example images'.format(log_text)
+        lab = [f'{i.item():.3f}' for i in labels]
+        if isinstance(weblogger, neptune.Run):
+            [weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=lb) / 255))
+             for im, lb in zip(plot_images, lab)]
+
     if plotter is None:
-        plotter = plot_images_on_weblogger
+        plotter = simple_plotter
     if 'stats' in dir(dataloader.dataset):
         dataset = dataloader.dataset
         dataset_name = dataset.name_ds
@@ -66,21 +75,11 @@ def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1,
         weblogger['Logs'] = f'{dataset_name} mean: {stats["mean"]}, std: {stats["std"]}'
 
     for idx, data in enumerate(dataloader):
-        plotter(dataset_name=dataset_name, data=data, stats=stats, weblogger=weblogger, text=log_text, batch_num=idx)
+        simple_plotter(idx, data)
         if idx + 1 >= num_batches_to_log:
             break
 
-def plot_images_on_weblogger(data, stats, weblogger, text='', **kwargs):
-    images, labels, *more = data
-    plot_images = images[0:np.max((4, len(images)))]
-    metric_str = 'Debug/{} example images'.format(text)
-    lab = [f'{i.item():.3f}' for i in labels]
-    # ax = imshow_batch(images, stats, lab)
-    if isinstance(weblogger, neptune.Run):
-        [weblogger[metric_str].log
-                           (File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=lb)/255))
-         for im, lb in zip(plot_images, lab)]
-
+    # weblogger[weblogger_text].log(File.as_image(image))
 
 
 def imshow_batch(inp, stats=None, labels=None, title_more='', maximize=True, ax=None):

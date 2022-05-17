@@ -1,3 +1,4 @@
+from src.utils.misc import convert_normalized_tensor_to_plottable_array
 from tqdm import tqdm
 import sty
 from sty import fg, rs, ef
@@ -10,7 +11,12 @@ import src.utils.misc as utils
 import signal, os
 import time
 import math
-import neptune.new as neptune
+try:
+    from neptune.new.types import File
+    import neptune.new as neptune
+
+except:
+    pass
 
 class CallbackList(object):
     """Container abstracting a list of callbacks.
@@ -460,28 +466,30 @@ class PlotImagesEveryOnceInAWhile(Callback):
             self.counter += 1
             print("Done")
 
-
     def plot(self, logs):
-        images = logs['images'].cpu()
-        # data = logs['data']
+        data = logs['data']
+        images, labels = data
+        images = images.cpu()
         corr = logs['y_true'] == logs['y_pred']
         if self.max_images:
             images = images[:np.min([len(images), self.max_images])]
             corr = corr[:np.min([len(images), self.max_images])]
             y_true = logs['y_true'][:np.min([len(images), self.max_images])]
+            y_pred = logs['y_pred'][:np.min([len(images), self.max_images])]
 
         corr_images = images[corr]
+        stats = self.dataset.stats
         if len(corr_images) > 0:
-            utils.plot_images_on_weblogger(self.dataset.name_ds, self.dataset.stats,
-                                           images=corr_images, text=f"{y_true[corr]} - {self.text} - CORRECT", more=None, weblogger=self.weblogger)
+            metric_str = f"Debug/E: {logs['epoch']}, test n. {self.counter}/CORRECT"
+            for idx, im in enumerate(corr_images):
+                text = f"P: {y_pred[corr][idx]:.3f} - Gt: {y_true[corr][idx]:3f}"
+                self.weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=text) / 255))
         incorr_images = images[~corr]
         if len(incorr_images) > 0:
-            utils.plot_images_on_weblogger(self.dataset.name_ds, self.dataset.stats,
-                                           images=incorr_images, text=f"{y_true[~corr]} - {self.text} - INCORRECT", more=None,
-                                           log_text=f"{self.text} - INCORRECT", weblogger=self.weblogger)
-
-
-
+            metric_str = f"Debug/E: {logs['epoch']}, test n. {self.counter}/INCORRECT"
+            for idx, im in enumerate(incorr_images):
+                text = f"P: {y_pred[~corr][idx]:.3f} - Gt: {y_true[~corr][idx]:3f}"
+                self.weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=text) / 255))
 
 class PrintNeptune(PrintLogs):
     def __init__(self,  weblogger, convert_str=False, log_prefix='', **kwargs):

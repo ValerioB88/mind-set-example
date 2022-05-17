@@ -17,6 +17,7 @@ config = Config(stop_when_train_acc_is=95,
                 cuda_device_num=0,
                 project_name='Ebbinghaus',
                 batch_size=64,
+                list_tags=['decoder', 'train'],
                 network_name='resnet152',
                 weblogger=False,  #set to True if you want to log into neptune client - if you do, you need to have an API token set (see neptune website). Otherwise put to 0.
                 pretraining='vanilla',
@@ -35,8 +36,8 @@ config.model_output_filename = './models/' + config_to_path_train(config) + '.pt
 if config.continue_train:
     config.pretraining = config.model_output_filename
 
+print(sty.ef.inverse + "FREEZING CORE NETWORK" + sty.rs.ef)
 for param in config.net.net.parameters():
-    print(sty.fg.inverse + "FREEZING CORE NETWORK" + sty.rs.ef)
     param.requires_grad = False
 
 config.loss_fn = torch.nn.MSELoss()
@@ -124,7 +125,7 @@ all_cb = [
         # if you don't use neptune, this will be ignored
         PrintNeptune(id='ca_mse', plot_every=np.inf, log_prefix='test_EVAL&TRAIN_', weblogger=config.weblogger),
         PrintConsole(id='ca_mse', endln=" / ", plot_every=np.inf, plot_at_end=True),
-        # PlotImagesEveryOnceInAWhile(config.weblogger, test_ds.dataset, plot_every=np.inf, plot_only_n_times=1, plot_at_the_end=True, max_images=10, text='')
+        PlotImagesEveryOnceInAWhile(config.weblogger, test_ds.dataset, plot_every=np.inf, plot_only_n_times=1, plot_at_the_end=True, max_images=10, text='')
                          ]) for test_ds in test_loaders]
 ]
 

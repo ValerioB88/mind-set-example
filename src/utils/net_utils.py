@@ -128,7 +128,7 @@ class RandomBackground(torch.nn.Module):
 
 def prepare_network(net, config, optimizer=None, train=True):
     pretraining_file = 'vanilla' if config.pretraining == 'ImageNet' else config.pretraining
-    load_pretraining(net, optimizer, pretraining_file, config.use_cuda)
+    load_pretraining(net, pretraining_file, optimizer, config.use_cuda)
     net.cuda() if config.use_cuda else None
 
     cudnn.benchmark = True
@@ -136,7 +136,7 @@ def prepare_network(net, config, optimizer=None, train=True):
     # print_net_info(net) if config.verbose else None
 
 
-def load_pretraining(net, optimizer, pretraining, use_cuda=None):
+def load_pretraining(net, pretraining, optimizer=None, use_cuda=None):
     if use_cuda is None:
         use_cuda = torch.cuda.is_available()
     if pretraining != 'vanilla':

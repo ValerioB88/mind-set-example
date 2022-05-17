@@ -34,12 +34,11 @@ def decoder_step(data, model, loss_fn, optimizer, use_cuda, logs, train, **kwarg
 
 
 def config_to_path_train(config):
-    return f"{config.network_name}"
+    return f"/ebbinghaus/decoder/{config.network_name}_decoder"
 
 
 class ResNet152decoders(nn.Module):
     def __init__(self, imagenet_pt, **kwargs):
-        cuda = torch.cuda.is_available()
         super().__init__()
         self.net = torchvision.models.resnet152(pretrained=imagenet_pt, progress=True, **kwargs)
         self.decoders = nn.ModuleList([nn.Linear(802816, 1),
