@@ -88,7 +88,7 @@ class DrawShape():
                       center[0] + radius - 1,
                       center[1] + radius - 1), fill=fill, outline=None)
 
-    @resize_up_down
+    # @resize_up_down
     def create_ebbinghaus(self, r_c, d=0, r2=0, n=0, shift=0, colour_center_circle=(255, 255, 255), img=None):
         """
         Parameters r_c, d, and r2, are relative to the total image size.
@@ -106,7 +106,7 @@ class DrawShape():
             thetas = np.linspace(0, np.pi*2, n, endpoint=False) + shift
             dd = img.size[0]*d
             vect = [[np.cos(t)*dd, np.sin(t)*dd] for t in thetas]
-            [self.circle(draw, np.array(vv) + img.size/2, img.size[0]*r2) for vv in vect]
+            [self.circle(draw, np.array(vv) + img.size[0]/2, img.size[0]*r2) for vv in vect]
         # img = self.apply_antialiasing(img)
         self.circle(draw, np.array(img.size)/2, img.size[0]*r_c, fill=colour_center_circle)
 

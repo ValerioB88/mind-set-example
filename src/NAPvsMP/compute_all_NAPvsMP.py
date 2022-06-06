@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from src.utils.misc import ConfigSimple
 import pickle
 import sty
-from src.cosine_similarity.compute_cossim import compute_cossim_from_img
+from src.utils.cosine_similarity.compute_cossim import compute_cossim_from_img
 
 def run(base_name, dataset_name):
     color_cycle = np.array(plt.rcParams['axes.prop_cycle'].by_key()['color'])

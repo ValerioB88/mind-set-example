@@ -266,7 +266,7 @@ class ExpMovingAverage(Logs):
         if self.value is None:
             self.value = args[0]
         else:
-            self.value = self.alpha * args[0] + (1 -    self.alpha) * self.value
+            self.value = self.alpha * args[0] + (1 - self.alpha) * self.value
         return self
 
 
@@ -279,7 +279,7 @@ class CumulativeAverage(Logs):
             self.value = args[0]
 
         else:
-            self.value = (args[0] + self.n*self.value) / (self.n+1)
+            self.value = (args[0] + self.n * self.value) / (self.n+1)
         self.n += 1
         return self
 
@@ -293,7 +293,6 @@ def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=
 
     callbacks = CallbackList(callbacks)
     callbacks.set_model(net)
-    callbacks.set_optimizer(optimizer)
     callbacks.set_loss_fn(loss_fn)
 
     callbacks.on_train_begin()

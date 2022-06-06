@@ -117,14 +117,14 @@ def imshow_batch(inp, stats=None, labels=None, title_more='', maximize=True, ax=
                 t = labels[idx]
             text = str(labels[idx]) + ' ' + (title_more[idx] if title_more != '' else '')
             # ax[idx].set_title(text, size=5)
-            ax[idx].text(0.5, 0.1, labels[idx], horizontalalignment='center', transform=ax[idx].transAxes, bbox=dict(facecolor='white', alpha=0.5))
+            ax[idx].text(0.5, 0.1, f'{labels[idx]:.3f}', horizontalalignment='center', transform=ax[idx].transAxes, bbox=dict(facecolor='white', alpha=0.5))
 
     plt.tight_layout()
     plt.subplots_adjust(top=1,
                         bottom=0.01,
                         left=0,
                         right=1,
-                        hspace=0.01,
+                        hspace=0.2,
                         wspace=0.01)
     return ax
 

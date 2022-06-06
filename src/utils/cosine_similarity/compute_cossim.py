@@ -123,7 +123,8 @@ class RecordCossim(RecordActivations):
                             save_figs(path_save_fig + f'{s}_{a}.png', save_sets, extra_info=affine_transf + f'\nmeanCS[-1]: {np.mean(cs[self.all_layers_names[-1]]):.3f}')
                             save_fig = False
                             save_sets = []
-            plt.close('all')
+                    plt.close('all')
+
         all_layers = list(cs.keys())
         return df, all_layers
 

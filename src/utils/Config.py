@@ -42,3 +42,4 @@ class Config:
                 print("Initializing neptune didn't work, maybe you don't have neptune installed or you haven't set up the API token (https://docs.neptune.ai/getting-started/installation). Neptune logging won't be used")
                 self.weblogger = False
         print(rs.fg)
+

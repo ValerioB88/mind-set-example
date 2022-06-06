@@ -37,7 +37,7 @@ class StaticDataEbbinghaus:
 
     def __getitem__(self, idx):
         return self.transform(self.images[idx]) if self.transform else self.images, \
-               torch.tensor(self.labels[idx])
+               torch.tensor(self.labels[idx]/0.2)  # 0.2 is the scaling
 
 
 class EbbinghausRandomFlankers(StaticDataEbbinghaus):

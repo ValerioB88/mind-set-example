@@ -10,5 +10,4 @@ Pillow~=9.0.1
 seaborn~=0.11.2
 scipy~=1.7.3
 scikit-image~=0.19.2
-pycocotools~=2.0.4
 scikit-learn~=1.1.0

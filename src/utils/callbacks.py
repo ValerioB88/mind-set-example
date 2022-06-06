@@ -467,6 +467,8 @@ class PlotImagesEveryOnceInAWhile(Callback):
             print("Done")
 
     def plot(self, logs):
+        if not isinstance(self.weblogger,  neptune.Run):
+            return None
         data = logs['data']
         images, labels = data
         images = images.cpu()
@@ -488,7 +490,7 @@ class PlotImagesEveryOnceInAWhile(Callback):
         if len(incorr_images) > 0:
             metric_str = f"Debug/E: {logs['epoch']}, test n. {self.counter}/INCORRECT"
             for idx, im in enumerate(incorr_images):
-                text = f"P: {y_pred[~corr][idx]:.3f} - Gt: {y_true[~corr][idx]:3f}"
+                text = f"P: {y_pred[~corr][idx]:.3f} - Gt: {y_true[~corr][idx]:.3f}"
                 self.weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=text) / 255))
 
 class PrintNeptune(PrintLogs):
@@ -510,8 +512,9 @@ class DuringTrainingTest(Callback):
     test_time = 0
     num_tests = 0
 
-    def __init__(self, testing_loaders, every_x_epochs=None, every_x_iter=None, every_x_sec=None, weblogger=False, multiple_sec_of_test_time=None, auto_increase=False, log_text='', use_cuda=None, call_run=None, callbacks=None, compute_conf_mat=True, plot_samples_corr_incorr=False, first_epoch_test=True):
+    def __init__(self, testing_loaders, every_x_epochs=None, eval_mode=True, every_x_iter=None, every_x_sec=None, weblogger=False, multiple_sec_of_test_time=None, auto_increase=False, log_text='', use_cuda=None, call_run=None, callbacks=None, compute_conf_mat=True, plot_samples_corr_incorr=False, first_epoch_test=True):
         self.first_epoch_test = first_epoch_test
+        self.eval_mode = eval_mode
         self.callbacks = [] if callbacks is None else callbacks
         self.testing_loader = testing_loaders
         self.compute_conf_mat = compute_conf_mat
@@ -540,7 +543,7 @@ class DuringTrainingTest(Callback):
     def run_tests(self, logs, last_test=False):
         start_test_time = time.time()
         print(fg.green, end="")
-        print(f"\n##Testing " + fg.green + f"[{self.testing_loader.dataset.name_ds}]##")
+        print(f"\n## Testing " + fg.green + f"[{self.testing_loader.dataset.name_ds}]" + ((' in ~EVAL~ mode') if self.eval_mode else (' in ~TRAIN~ mode')) + " ##")
         print(rs.fg, end="")
 
         def test(testing_loader, log='', last_test=False):
@@ -552,15 +555,15 @@ class DuringTrainingTest(Callback):
                                         callbacks=mid_test_cb,
                                         collect_data=True if self.plot_samples_corr_incorr else False)
 
-        print("+++TEST IN EVAL MODE")
-        self.model.eval()
-        test(self.testing_loader, log=f' EVALmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
+        if self.eval_mode:
+            self.model.eval()
+            test(self.testing_loader, log=f' EVALmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
+
+        if not self.eval_mode:
+            self.model.train()
+            test(self.testing_loader, log=f' TRAINmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
 
         self.model.train()
-        print("\n+++TEST IN TRAIN MODE")
-        test(self.testing_loader, log=f' TRAINmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
-
-
         self.num_tests += 1
 
         self.time_from_last_test = time.time()

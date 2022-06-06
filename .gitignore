@@ -1,11 +1,11 @@
-*.gv
 *.pdf
 *.pt
 *.bat
-__pycache__/*
+
 **/__pycache__/**
 **/.neptune/**
 **/.pytest_cache/**
+
 tmp/
 **/.ipynb_checkpoints/
 .idea
