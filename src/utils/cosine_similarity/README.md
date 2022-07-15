@@ -28,7 +28,7 @@ python -m src.utils.cosine_similarity.compute_cossim_base_vs_folder \
 
 The meaning of the `--affine_transf_code` optional args is explained below. 
 
-**(Notice how we always start the script as a module, and from the root folder of this project, `MindSet`. Alway do that, otherwise it won't work)**
+**(Notice how we always start the script as a module, and from the root folder of this project, `mind-set`. Alway do that, otherwise it won't work)**
 ### Dataset: Folder vs Folder
 * **Example dataset in `data/NAPvsMP/NAPvsMP_standard`**
 

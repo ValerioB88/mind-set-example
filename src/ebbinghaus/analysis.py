@@ -6,7 +6,6 @@ The main things to change for other experiments are the testing datasets. Here I
 import torch.nn
 from src.ebbinghaus.generate_datasets import EbbinghausRandomFlankers, EbbinghausTestBigFlankers, EbbinghausTestSmallFlankers
 from src.utils.net_utils import run, CumulativeAverage, ExpMovingAverage
-from src.utils.Config import Config
 from src.utils.net_utils import prepare_network
 from torch.utils.data import DataLoader
 from src.utils.callbacks import *

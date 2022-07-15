@@ -14,7 +14,7 @@ python -m src.utils.decoder.train \
             --train_dataset data/name_dataset/train_data \
             --test_datasets data/name_dataset/test_data1 data/name_dataset/test_data2 data/name_dataset/test_data3 
 ```
-**Notice how we always start the script as a module, and from the root folder of this project, `MindSet`. Alway do that, otherwise it won't work.**
+**Notice how we always start the script as a module, and from the root folder of this project, `mind-set`. Alway do that, otherwise it won't work.**
 
 The `decoder.train` script will automatically train all decoder on the `train__data`  dataset, and will test **each test dataset separately**, providing appropriate info about them. The output will be the trained network, and a `.csv` file for each test dataset.
 

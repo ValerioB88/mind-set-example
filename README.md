@@ -8,7 +8,7 @@ If you just wanna mess around and try stuff use these scripts as you like (clone
 
 
 
-**IMPORTANT: In all the examples, the working directory is ALWAYS `MindSet`, meaning that you need to run the scripts from the folder `MindSet`. Plus, to account for other modules dependencies, run it as a module. E.g. `python -m src.cosine_similarity_method.run_cossim_img_vs_folder`.**
+**IMPORTANT: In all the examples, the working directory is ALWAYS the project root (`mind-set`), meaning that you need to run the scripts from the folder `mind-set`. Plus, to account for other modules dependencies, run it as a module. E.g. `python -m src.cosine_similarity_method.run_cossim_img_vs_folder`.**
 
 ## Contribution Guidelines
 Put your dataset in `data/name_dataset`. If you have several variations of your dataset do something like `data/name_dataset/variation1`, `data/name_dataset/variation2`, etc.  If you use git, DO NOT ADD THE DATASET TO GIT. The dataset stays local on your machine. **We will decide later together how to share the datasets properly**. (The few datasets added currently are all currently for examples). 

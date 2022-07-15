@@ -14,11 +14,8 @@ class StaticDataEbbinghaus:
     Static data:
     """
     def __init__(self, fun, size_dataset, path=None):
-        # if path and os.path.isfile(path):
-        #     print(sty.fg.yellow + f"Dataset Loaded from {path}" + sty.rs.fg)
-        #     data = pickle.load(open(path, 'rb'))
-        #     self.images, self.labels = data['images'], data['labels']
-        # else:
+
+        print(sty.fg.yellow + f"Generating data in {path}" + sty.rs.fg)
         pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
         self.labels = []
@@ -26,15 +23,6 @@ class StaticDataEbbinghaus:
         for N in range(size_dataset):
             img, rc = fun()
             img.save(path + f'/{rc/0.2}.png')
-            # self.labels.append(rc/0.2)
-            # self.images.append(img)
-        # if path:
-
-        # pickle.dump({'images': self.images,
-        #              'labels': self.labels}, open(path, 'wb'))
-        # print(sty.fg.yellow + f"Dataset written in {path}" + sty.rs.fg)
-        # if not hasattr(self, 'transform'):
-        #     self.transform = None
 
 
 class EbbinghausRandomFlankers(StaticDataEbbinghaus):
