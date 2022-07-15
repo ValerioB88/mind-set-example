@@ -1,4 +1,4 @@
-(# MindSet
+# MindSet
 This repo is intended to be used by all members of the team involved in the MindSet project. Scripts for running a decoder task (either as a regression or classification method) and a cosine similarity task are provided. More might come if needed.
 
 **_For more information about each approach, go to the README of the relevant folder: [cosine similarity approach](https://github.com/ValerioB88/mind-set-example/tree/master/src/utils/cosine_similarity) or [decoder approach](https://github.com/ValerioB88/mind-set-example/tree/master/src/utils/decoder)._**
