@@ -361,7 +361,7 @@ class SaveModel(Callback):
                     ((self.last_loss - logs[self.loss_metric_name]) > self.epsilone_loss) and\
                     ((logs['tot_iter'] - self.last_iter) > self.min_iter):
                 self.last_iter = logs['tot_iter']
-                self.last_loss = logs[self.loss_metric_name].value  ## ouch! You cannot overload assignment operator :( !
+                self.last_loss = logs[self.loss_metric_name] # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
                 self.save_model(os.path.splitext(self.output_path)[0] + f'_checkpoint' + os.path.splitext(self.output_path)[1], print_it=self.print_save)
 
     def on_train_end(self, logs=None):
@@ -437,61 +437,48 @@ class ProgressBar(Callback):
     def on_train_end(self, logs=None):
         self.pbar.close()
 
-class PlotImagesEveryOnceInAWhile(Callback):
-    counter = 0
-    def __init__(self, weblogger, dataset, plotting_fun=None, plot_every=1, plot_only_n_times=5, plot_at_the_end=False, max_images=None, text=''):
-        if plotting_fun is None:
-            PlotImagesEveryOnceInAWhile.plotting_fun = self.plot
-        else:
-            PlotImagesEveryOnceInAWhile.plotting_fun = plotting_fun
-        self.dataset = dataset
-        self.plot_every = plot_every
-        self.plot_only_n_times = plot_only_n_times
-        self.weblogger = weblogger
-        self.plot_at_the_end = plot_at_the_end
-        self.max_images = max_images
-        self.text = text
+from csv import writer
+class SaveInfoCsv(Callback):
+    def __init__(self, log_names, path, update_on_batch_end=False, update_on_epoch_end=True, update_on_train_end=False):
+        self.log_names = log_names
+        self.path = path
+        self.rows = []
+        self.update_on_batch_end = update_on_batch_end
+        self.update_on_train_end = update_on_train_end
+        self.update_on_epoch_end = update_on_epoch_end
+        pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
 
-    def on_training_step_end(self, batch, logs=None):
-        if logs['tot_iter'] % self.plot_every == self.plot_every - 1 and self.counter < self.plot_only_n_times:
-            print(sty.fg.blue + "Plotting..." + sty.rs.fg, end="")
-            self.plotting_fun(logs)
-            self.counter += 1
-            print("Done")
+        f = open(self.path, 'w')
+        csv_writer = writer(f)
+        csv_writer.writerow(log_names)
+
+    def append_list_as_row(self, file_name, list_of_elem):
+        # Open file in append mode
+        with open(file_name, 'a+', newline='') as write_obj:
+            # Create a writer object from csv module
+            csv_writer = writer(write_obj)
+            # Add contents of list as last row in the csv file
+            csv_writer.writerow(list_of_elem)
+
+    def update(self, logs):
+        self.append_list_as_row(self.path, [logs[l] for l in self.log_names])
+
+
+
+    def on_epoch_end(self, epoch, logs=None):
+        if self.update_on_epoch_end:
+            self.update(logs)
+
+    def on_batch_end(self, batch, logs=None):
+        if self.update_on_batch_end:
+            self.update(logs)
 
     def on_train_end(self, logs=None):
-        if self.plot_at_the_end:
-            print(sty.fg.blue + "Plotting..." + sty.rs.fg, end="")
-            self.plotting_fun(logs)
-            self.counter += 1
-            print("Done")
+        if self.update_on_train_end:
+            self.update(logs)
 
-    def plot(self, logs):
-        if not isinstance(self.weblogger,  neptune.Run):
-            return None
-        data = logs['data']
-        images, labels = data
-        images = images.cpu()
-        corr = logs['y_true'] == logs['y_pred']
-        if self.max_images:
-            images = images[:np.min([len(images), self.max_images])]
-            corr = corr[:np.min([len(images), self.max_images])]
-            y_true = logs['y_true'][:np.min([len(images), self.max_images])]
-            y_pred = logs['y_pred'][:np.min([len(images), self.max_images])]
 
-        corr_images = images[corr]
-        stats = self.dataset.stats
-        if len(corr_images) > 0:
-            metric_str = f"Debug/E: {logs['epoch']}, test n. {self.counter}/CORRECT"
-            for idx, im in enumerate(corr_images):
-                text = f"P: {y_pred[corr][idx]:.3f} - Gt: {y_true[corr][idx]:3f}"
-                self.weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=text) / 255))
-        incorr_images = images[~corr]
-        if len(incorr_images) > 0:
-            metric_str = f"Debug/E: {logs['epoch']}, test n. {self.counter}/INCORRECT"
-            for idx, im in enumerate(incorr_images):
-                text = f"P: {y_pred[~corr][idx]:.3f} - Gt: {y_true[~corr][idx]:.3f}"
-                self.weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=text) / 255))
+
 
 class PrintNeptune(PrintLogs):
     def __init__(self,  weblogger, convert_str=False, log_prefix='', **kwargs):
@@ -512,13 +499,14 @@ class DuringTrainingTest(Callback):
     test_time = 0
     num_tests = 0
 
-    def __init__(self, testing_loaders, every_x_epochs=None, eval_mode=True, every_x_iter=None, every_x_sec=None, weblogger=False, multiple_sec_of_test_time=None, auto_increase=False, log_text='', use_cuda=None, call_run=None, callbacks=None, compute_conf_mat=True, plot_samples_corr_incorr=False, first_epoch_test=True):
+    def __init__(self, testing_loaders, every_x_epochs=None, eval_mode=True, every_x_iter=None, every_x_sec=None, weblogger=False, logs_prefix='rndtxt', multiple_sec_of_test_time=None, auto_increase=False, log_text='', use_cuda=None, call_run=None, callbacks=None, compute_conf_mat=True, plot_samples_corr_incorr=False, first_epoch_test=True):
         self.first_epoch_test = first_epoch_test
         self.eval_mode = eval_mode
         self.callbacks = [] if callbacks is None else callbacks
         self.testing_loader = testing_loaders
         self.compute_conf_mat = compute_conf_mat
         self.use_cuda = use_cuda
+        self.logs_prefix = logs_prefix
         self.every_x_epochs = every_x_epochs
         self.auto_increase = auto_increase  # this is also used as a multiplier.
         self.every_x_iter = every_x_iter
@@ -536,7 +524,7 @@ class DuringTrainingTest(Callback):
         self.time_from_last_test = time.time()
 
     def get_callbacks(self, log, testing_loader):
-        cb = self.callbacks + [StopWhenMetricIs(value_to_reach=0, metric_name='epoch', check_after_batch=False)]
+        cb = self.callbacks + [StopWhenMetricIs(value_to_reach=0, metric_name=f'{self.logs_prefix}epoch', check_after_batch=False)]
         # cb.append(PlotImagesEveryOnceInAWhile(self.weblogger, testing_loader.dataset, plot_every=1, plot_only_n_times=1, plot_at_the_end=False, max_images=20, text=f"Test no. {self.num_tests}")) if self.plot_samples_corr_incorr else None
         return cb
 
@@ -551,9 +539,11 @@ class DuringTrainingTest(Callback):
 
             with torch.no_grad():
                 _, logs_test = self.call_run(testing_loader,
-                                        train=False,
-                                        callbacks=mid_test_cb,
-                                        collect_data=True if self.plot_samples_corr_incorr else False)
+                                             train=False,
+                                             callbacks=mid_test_cb,
+                                             logs=logs,
+                                             logs_prefix=self.logs_prefix,
+                                             collect_data=True if self.plot_samples_corr_incorr else False)
 
         if self.eval_mode:
             self.model.eval()
@@ -574,9 +564,7 @@ class DuringTrainingTest(Callback):
 
         if self.multiple_sec_of_test_time:
             print("Test time is {:.4f}s, next test is gonna happen in {:.4f}s".format(self.test_time, self.test_time*self.multiple_sec_of_test_time))
-        print(fg.green, end="")
-        print("#############################################")
-        print(rs.fg, end="")
+        print(fg.green + "\n#############################################" + rs.fg)
 
     def on_epoch_begin(self, epoch, logs=None):
         if (self.every_x_epochs is not None and epoch % self.every_x_epochs == 0) or (epoch==0 and self.first_epoch_test):
@@ -597,7 +585,6 @@ class DuringTrainingTest(Callback):
             self.run_tests(logs)
 
     def on_train_end(self, logs=None):
-        print("End training")
         self.run_tests(logs, last_test=True)
 
 

@@ -25,7 +25,6 @@ class GrabNet():
 
         if imagenet_pt:
             print(fg.red + "Loading ImageNet" + rs.fg)
-
         nc = 1000 if imagenet_pt else num_classes
         kwargs = dict(num_classes=nc) if nc is not None else dict()
         if network_name == 'vgg11':
@@ -182,9 +181,12 @@ def print_net_info(net):
 def make_cuda(fun, is_cuda):
     return fun.cuda() if is_cuda else fun
 
-
+##
 class Logs():
     value = None
+
+    def __repr__(self):
+        return f'{self.value}'
 
     def __repl__(self):
         return str(self.value)
@@ -256,6 +258,7 @@ class Logs():
         return format(self.value, format_spec)
 
 
+
 class ExpMovingAverage(Logs):
     value = None
 
@@ -269,7 +272,10 @@ class ExpMovingAverage(Logs):
             self.value = self.alpha * args[0] + (1 - self.alpha) * self.value
         return self
 
+a= ExpMovingAverage(0.2).add(3)
+a = a +1
 
+##
 class CumulativeAverage(Logs):
     value = None
     n = 0
@@ -284,7 +290,7 @@ class CumulativeAverage(Logs):
         return self
 
 
-def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=None, loss_fn=None, iteration_step=None, logs=None, **kwargs):
+def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=None, loss_fn=None, iteration_step=None, logs=None, logs_prefix='', **kwargs):
     if logs is None:
         logs = {}
     torch.cuda.empty_cache()
@@ -299,29 +305,28 @@ def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=
 
     tot_iter = 0
     epoch = 0
-    logs['tot_iter'] = 0
+    logs.update({f'{logs_prefix}tot_iter': 0, f'{logs_prefix}stop': False, f'{logs_prefix}epoch': 0})
     while True:
-        callbacks.on_epoch_begin(epoch)
-        logs['epoch'] = epoch
+        callbacks.on_epoch_begin(epoch, logs)
+        logs[f'{logs_prefix}epoch'] = epoch
         for batch_index, data in enumerate(data_loader, 0):
             callbacks.on_batch_begin(batch_index, logs)
-            loss, y_true, y_pred, logs = iteration_step(data, net, loss_fn, optimizer, use_cuda, logs, **kwargs)
-            logs.update({
-                # 'y_pred': y_pred,
-                'loss': loss.item(),
-                # 'y_true': y_true,
-                'tot_iter': tot_iter,
-                'stop': False})
+            iteration_step(data, net, loss_fn, optimizer, use_cuda, logs, logs_prefix, **kwargs)
+            logs.update({'stop': False})
+            # logs.update({
+            #     'loss': loss.item(),
+            #     'tot_iter': tot_iter,
+            #     'stop': False})
 
             callbacks.on_training_step_end(batch_index, logs)
             callbacks.on_batch_end(batch_index, logs)
-            if logs['stop']:
+            if logs[f'stop']:
                 break
             tot_iter += 1
 
         callbacks.on_epoch_end(epoch, logs)
         epoch += 1
-        if logs['stop']:
+        if logs[f'stop']:
             break
 
     callbacks.on_train_end(logs)

@@ -1,4 +1,0 @@
-One Way Anova: p-value=0.05088719800548492
-Repeated Measures ANOVA:
-        F Value  Num DF  Den DF    Pr > F
-level  0.211828     1.0     1.0  0.725398

@@ -1,2 +1,0 @@
-              F Value  Num DF  Den DF   Pr > F
-alternative  5.105586     1.0     8.0  0.05376

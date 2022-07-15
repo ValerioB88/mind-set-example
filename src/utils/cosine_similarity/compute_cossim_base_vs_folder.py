@@ -1,3 +1,15 @@
+"""
+This will compute the base image vs folder cosine similarity.
+Given a dataset folder `./data/xx/` and a base IMAGE, it compares the base image for each image in the target folder
+    `./data/xx/base/0.png` vs `./data/xx/comp1/0.png`,
+    `./data/xx/base/0.png` vs  `./data/xx/comp1/1.png`,
+    .
+    .
+    .
+    .
+Each comparison is done multiple time at different transformations
+"""
+
 from torchvision.transforms.functional import InterpolationMode
 import glob
 import pandas as pd
@@ -12,8 +24,9 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 import torchvision
 import PIL.Image as Image
-from src.utils.cosine_similarity.misc import get_new_affine_values, my_affine, save_figs
+from src.utils.cosine_similarity.misc import get_new_affine_values, my_affine, save_figs, get_cossim_args
 from src.utils.cosine_similarity.activation_recorder import RecordCossim
+
 
 class RecordCossimImgBaseVsFolder(RecordCossim):
     def compute_random_set(self, folder, transform, matching_transform=False, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_image='base.png'):
@@ -61,7 +74,7 @@ def compute_cossim_from_img(config):
 
     transform = torchvision.transforms.Compose(transf_list)
 
-    fill_bk = 'black' if config.background == 'black' or config.background == 'random' else config.background
+    fill_bk = 'black' if config.affine_transf_background == 'black' or config.affine_transf_background == 'random' else config.affine_transf_background
     debug_image_path = config.result_folder + '/debug_img/'
     pathlib.Path(os.path.dirname(config.result_folder)).mkdir(parents=True, exist_ok=True)
     pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
@@ -72,32 +85,28 @@ def compute_cossim_from_img(config):
                                                            matching_transform=config.matching_transform,
                                                            fill_bk=fill_bk,
                                                            affine_transf=config.affine_transf_code,
-                                                           N=config.rep,
+                                                           N=config.repetitions,
                                                            path_save_fig=debug_image_path,
                                                            base_image=config.base_image
                                                            )
 
 
-    save_path = config.result_folder + '/cossim.df'
-    print(fg.red + f'Saved in {save_path}' + rs.fg)
+    save_path = config.result_folder + '/cossim_df.pickle'
+    print(fg.red + f'Saved in ' + fg.green + f'{save_path}' + rs.fg)
 
     pickle.dump({'layers_names': layers_names, 'cossim_df': cossim_df, 'folder': config.folder, 'base_image': config.base_image}, open(save_path, 'wb'))
     return cossim_df, layers_names
 
 if __name__ == '__main__':
-    from src.utils.misc import ConfigSimple
+    import argparse
 
-    config = ConfigSimple(project_name='MindSet',
-                          network_name='inception_v3',
-                          pretraining='ImageNet',
-                          affine_transf_code='t[-0.2, 0.2]s[0.5,0.9]r',
-                          result_folder=f'./results/closure/square/full_vs_segm/',
-                          background='black',
-                          matching_transform=True,
-                          save_layers=['Conv2d', 'Linear'],  # to be saved, a layer must contain any of these words
-                          rep=2,
-                          base_image='./data/closure/square/normal_full/0.png',
-                          folder='./data/closure/square/angles_rnd/',
-                          )
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--base_image')
+    parser.add_argument('--folder')
+    parser = get_cossim_args(parser)
 
+    # config = parser.parse_args(['--base_image', './data/closure/square/segm15/normal_full/0.png', '--folder', './data/closure/square/segm15/angles_rnd/', '--result_folder', './results/closure/square/segm15/full_vs_segm/', '--affine_transf_code', 't[-0.2, 0.2]s[0.5,0.9]r'])
+
+    config = parser.parse_known_args()[0]
+    [print(fg.red + f'{i[0]}:' + fg.blue + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
     cossim_df, layers_names = compute_cossim_from_img(config)

@@ -1,19 +1,19 @@
-# Mind Set Example Repo
-This Repo can be used for those tasks requiring the cosine similarity or the decoder approach. This should cover the majority of the examples in the mind set repo.
-
+# MindSet
+This repo is intended to be used by all members of the team involved in the MindSet project. Scripts for running a decoder task (either as a regression or classification method) and a cosine similarity task are provided. More might come if needed.
 
 **_For more information about each approach, go to the README of the relevant folder: [cosine similarity approach](https://github.com/ValerioB88/mind-set-example/tree/master/src/utils/cosine_similarity) or [decoder approach](https://github.com/ValerioB88/mind-set-example/tree/master/src/ebbinghaus/decoder)._**
 
-## General Usage
-**IMPORTANT: In all the examples, the working directory is ALWAYS `/MindSetExample`, meaning that you need to run the scripts from `/MindSetExample`. To account for the dependencies, run it as a module. E.g. `python3 -m src.cosine_similarity_method.run_cossim_img_vs_folder`.**
+If you just wanna mess around and try stuff use these scripts as you like (clone/fork/download/copy and paste). At some point, we need to understand more precisely how we are going to merge all our scripts (the ones we use for analysing our dataset). For now, you should take a look at the Contribution Guidelines below and follow them to make our life easier later on. Thanks!
 
 
 
-## Coding Quirks
-I use mostly well known python functions and libraries, but there are two quirks that might confuse readers:
-- my code is well integrated with the experiment tracking service [Neptune.ai](www.neptune.ai). If you have an account, set the `weblogger` option in `Config` equal to `True`, otherwise `False`. This will save sample images and log training/testing charts in the Neptune page
-- I do not use command line arguments. Instead, most scripts contain a `Config` object (or `ConfigSimple`) that contains all the needed parameters for an experiment. Each experiment corresponds to a different Config object (instead of a different command line). For your own simulation you will use a different python file with its own `Config` object. You will find some examples for both the cosine (`cosine_similarity/run_cossim_img_vs_folder`) and the decoder method (`ebbinghaus_illusion/decoder/train.py`).
 
+**IMPORTANT: In all the examples, the working directory is ALWAYS `MindSet`, meaning that you need to run the scripts from the folder `MindSet`. Plus, to account for other modules dependencies, run it as a module. E.g. `python -m src.cosine_similarity_method.run_cossim_img_vs_folder`.**
 
-## To Do
-Ideally the datasets in `./data` should only contain dataset needed to run the experiments. Right now it contains a lot of crap - I will fix that soon! 
+## Contribution Guidelines
+Put your dataset in `data/name_dataset`. If you have several variations of your dataset do something like `data/name_dataset/variation1`, `data/name_dataset/variation2`, etc.  If you use git, DO NOT ADD THE DATASET TO GIT. The dataset stays local on your machine. **We will decide later together how to share the datasets properly**. 
+
+The scripts for generating the dataset, for the analysis, and for any other thing that might be useful, go in `src/name_dataset/` (within this folder, arrange files and subfolders to your liking). In `src/name_dataset`, you should also put a bash file containing the command line used for that specific dataset, with a name indicating the approach it is referring to. See as an example `src/ebbinghaus/decoder_train.sh` containing the command line for training the decoder, or `src/NAPvsMP/cosine_similarity.sh` contains the loop for computing the cosine similarity and run the analysis on all the four `NAPvsMP` datasets in `data/NAPvsMP`.
+When saving files, always save them in `results/name_dataset/`; when saving a model, save it in `models/name_dataset/`.
+
+Overall, the general rule is to aim to mimick a similar folder structure across `data`, `src`, `models`, and `results`. 
