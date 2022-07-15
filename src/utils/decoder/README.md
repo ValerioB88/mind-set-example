@@ -9,14 +9,14 @@ You can use **the same** script for both regression or classification, with the 
 In both cases, you use the script in this way:
 ```
 python -m src.utils.decoder.train \
-            --test_results_folder results/decoder/example_ebbinghaus/ \
-            --model_output_path models/decoder/example_ebbinghaus.pt \
-            --train_dataset data/ebbinghaus/train_random_data \
-            --test_datasets data/ebbinghaus/test_random_data data/ebbinghaus/test_small_flankers_data data/ebbinghaus/test_big_flankers_data
+            --test_results_folder results/name_dataset \
+            --model_output_path models/name_dataset/model.pt \
+            --train_dataset data/name_dataset/train_data \
+            --test_datasets data/name_dataset/test_data1 data/name_dataset/test_data2 data/name_dataset/test_data3 
 ```
 **Notice how we always start the script as a module, and from the root folder of this project, `MindSet`. Alway do that, otherwise it won't work.**
 
-The `decoder.train` script will automatically train all decoder on the `train_random_data`  dataset, and will test **each test dataset separately**, providing appropriate info about them. The output will be the trained network, and a `.csv` file for each test dataset.
+The `decoder.train` script will automatically train all decoder on the `train__data`  dataset, and will test **each test dataset separately**, providing appropriate info about them. The output will be the trained network, and a `.csv` file for each test dataset.
 
 
 ### Dataset for Classification
@@ -35,7 +35,7 @@ This follows the [PyTorch arrangment](https://pytorch.org/vision/stable/generate
 
 
 ### Dataset for Regression
-* **Example dataset `data/ebbinghaus`**
+* **Example dataset `data/ebbinghaus`** (generated it with `python -m src.ebbinghaus.generate_datasets`)
 * **Used in script `src/utils/decoder/train`**
 * **Example usage in `src/utils/decoder/examples/regression.sh`**
 
@@ -60,7 +60,7 @@ Similarly for regression, we compute the following metrics:
 Interrupting training with `CTRL+C` should actually end the training gracefully: the test dataset are computed one final time, the `csv` files are written in the appropriate folder, and the PyTorch model is also saved. In any case, a PyTorch `checkpoint` model is saved every epoch.
 
 #### Other options
-Check other otions with `python -m src.utils.decoder.train -h`. Overall, let's try to all use the same default options when possible.
+Check other otions with `python -m src.utils.decoder.train -h`. Let's try to all use the same default options when possible.
 
 ## Neptune.ai
 [Neptune.ai](ww.neptune.ai) is a tool for logging experiments on the web. You don't need to use Neptune, but my training loop codebase is well integrated with it: it will save sample images and log training/testing charts in the Neptune page.

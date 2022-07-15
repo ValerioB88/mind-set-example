@@ -1,4 +1,6 @@
 #!/bin/bash
+python -m src.ebbinghaus.generate_datasets
+
 python -m src.utils.decoder.train \
             --test_results_folder ./results/decoder/example_ebbinghaus/ \
             --model_output_path ./models/decoder/example_ebbinghaus.pt \
