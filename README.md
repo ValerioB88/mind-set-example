@@ -17,4 +17,6 @@ The scripts for generating the dataset, for the analysis, and for any other thin
 When saving files, always save them in `results/name_dataset/`; when saving a model, save it in `models/name_dataset/`.
 
 Overall, the general rule is to aim to mimick a similar folder structure across `data`, `src`, `models`, and `results`. 
-)
+
+## How should I create my dataset?
+The instruction about the dataset structure to feed into each script are inside the README of the individual methods (cosine sim/decoder). However, if you are wondering whether there are any guidelines on the _images_ your dataset is made of, the answer is not really. I automatically apply a resize to 224x224 to each image, so generate something that looks good at that resolution. It's preferable to use a white stroke on a black background. A part from that, feel free to generate the image with your preferred method. Remember that you will need to share the script to generate the dataset.
