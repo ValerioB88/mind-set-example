@@ -87,7 +87,7 @@ else:
     config.method = 'classification'
 
 
-[print(fg.red + f'{i[0]}:' + fg.blue + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
+[print(fg.red + f'{i[0]}:' + fg.cyan + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
 
 from torchvision.datasets import ImageFolder
 ds = ImageFolder if config.method == 'classification' else RegressionDataset

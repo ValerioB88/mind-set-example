@@ -2,8 +2,8 @@
 ## You can run the decoder example for a classification dataset, or for a regression dataset.
 # A classification dataset is a folder containing a set of folders (one for each class).
 python -m src.utils.decoder.train \
-            --test_results_folder ./results/decoder/examples/miniMNIST/ \
-            --model_output_path ./models/decoder/examples/miniMNIST.pt \
+            --test_results_folder ./results/examples//miniMNIST/ \
+            --model_output_path ./models/examples/miniMNIST.pt \
             --train_dataset ./data/examples/miniMNIST/training \
             --test_datasets ./data/examples/miniMNIST/testing1 ./data/examples/miniMNIST/testing2
 

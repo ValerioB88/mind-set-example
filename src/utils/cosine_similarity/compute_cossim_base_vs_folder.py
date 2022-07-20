@@ -36,8 +36,8 @@ class RecordCossimImgBaseVsFolder(RecordCossim):
 
 
         df = pd.DataFrame([])
-        save_sets = []
         for s in tqdm(compare_images):
+            save_sets = []
             plt.close('all')
             save_fig = True
             for n in range(N):
@@ -54,7 +54,7 @@ class RecordCossimImgBaseVsFolder(RecordCossim):
 
                 if save_fig:
                     save_sets.append([conver_tensor_to_plot(i, norm.mean, norm.std) for i in images])
-                    if len(save_sets) == save_num_image_sets:
+                    if len(save_sets) == min([save_num_image_sets, N]):
                         save_figs(path_save_fig + f'{os.path.basename(s)}', save_sets, extra_info=affine_transf)
                         save_fig = False
                         save_sets = []
@@ -105,8 +105,8 @@ if __name__ == '__main__':
     parser.add_argument('--folder')
     parser = get_cossim_args(parser)
 
-    # config = parser.parse_args(['--base_image', './data/closure/square/segm15/normal_full/0.png', '--folder', './data/closure/square/segm15/angles_rnd/', '--result_folder', './results/closure/square/segm15/full_vs_segm/', '--affine_transf_code', 't[-0.2, 0.2]s[0.5,0.9]r'])
+    # config = parser.parse_args(['--base_image', './data/examples/closure/square.png', '--folder', './data/examples/closure/angles_rnd/', '--result_folder', './results/closure/square/segm15/full_vs_segm/', '--repetitions', '2'])  #, '--affine_transf_code', 't[-0.2, 0.2]s[0.5,0.9]r'])
 
     config = parser.parse_known_args()[0]
-    [print(fg.red + f'{i[0]}:' + fg.blue + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
+    [print(fg.red + f'{i[0]}:' + fg.cyan + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
     cossim_df, layers_names = compute_cossim_from_img(config)

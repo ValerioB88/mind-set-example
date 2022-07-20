@@ -23,12 +23,12 @@ python -m src.utils.cosine_similarity.compute_cossim_base_vs_folder \
             --folder ./data/examples/closure/angles_rnd \
             --result_folder ./results/examples/closure/full_vs_segm \
             --affine_transf_code "t[-0.2, 0.2]sr" \
-            --repetitions 50
+            --repetitions 2  # For real experiment put at least 50
 ```
 
 The meaning of the `--affine_transf_code` optional args is explained below. 
 
-**(Notice how we always start the script as a module, and from the root folder of this project, `mind-set`. Alway do that, otherwise it won't work)**
+**(Notice how we always start the script as a module (the `-m` option), and from the root folder of this project, `mind-set`. Alway do that, otherwise it won't work)**
 ### Dataset: Folder vs Folder
 * **Example dataset in `data/NAPvsMP/NAPvsMP_standard`**
 
@@ -44,7 +44,7 @@ Here you compute cosine similarity between images in a base folder and correspon
 python -m src.utils.cosine_similarity.compute_cossim_across_folders \
                             --base_folder_name NS \
                             --folder ./data/NAPvsMP/NAPvsMPlines/ \
-                            --result_folder ./results/NAPvsMP/NAPvsMPlines/ \
+                            --result_folder ./results/examples/NAPvsMPlines/ \
                             --affine_transf_code "t[-0.2, 0.2]sr" \
                             --repetitions 2  # For real experiment put at least 50
 ```

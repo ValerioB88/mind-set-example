@@ -33,6 +33,15 @@ This follows the [PyTorch arrangment](https://pytorch.org/vision/stable/generate
 /root/class9/xxx.png
 ```
 
+Example Usage:
+
+```
+python -m src.utils.decoder.train \
+            --test_results_folder ./results/examples//miniMNIST/ \
+            --model_output_path ./models/examples/miniMNIST.pt \
+            --train_dataset ./data/examples/miniMNIST/training \
+            --test_datasets ./data/examples/miniMNIST/testing1 ./data/examples/miniMNIST/testing2
+```
 
 ### Dataset for Regression
 * **Example dataset `data/ebbinghaus`** (generated it with `python -m src.ebbinghaus.generate_datasets`)
@@ -47,6 +56,19 @@ In this case each root folder will not contain other folders for classes (there 
 /root/2.12.png
 ...
 ```
+
+Example Usage
+```
+python -m src.ebbinghaus.generate_datasets --num_training_data 6000
+
+python -m src.utils.decoder.train \
+            --test_results_folder ./results/examples/ebbinghaus/ \
+            --model_output_path ./models/examples/ebbinghaus.pt \
+            --train_dataset ./data/ebbinghaus/train_random_data_6000 \
+            --test_datasets ./data/ebbinghaus/test_random_data_2000 ./data/ebbinghaus/test_small_flankers_data_2000 ./data/ebbinghaus/test_big_flankers_data_2000
+```
+
+
 
 ### Training Loop Info
 #### Logs
