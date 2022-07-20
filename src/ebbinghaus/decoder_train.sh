@@ -1,5 +1,5 @@
 #!/bin/bash
-python -m src.ebbinghaus.generate_datasets
+python -m src.ebbinghaus.generate_datasets --num_training_data 6000 --num_testing_data 2000
 
 python -m src.utils.decoder.train \
             --test_results_folder ./results/decoder/example_ebbinghaus/ \

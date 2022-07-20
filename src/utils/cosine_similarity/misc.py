@@ -10,7 +10,7 @@ def get_cossim_args(parser):
     parser.add_argument('--affine_transf_background', metavar='', help='when rotating/scaling the image, a "fill in" background will be used. You can specify which one here: [black], [white], [random]<-for randomly pixellated, [cyan] etc.', default='black')
     parser.add_argument('--result_folder', metavar='', default='./results/')
     parser.add_argument('--repetitions', metavar='', help='How many times do we need to repeat a sample', default=50, type=int)
-    parser.add_argument('--save_layers', metavar='', default=['Conv2d', 'Linear'], nargs="+", type=str)
+    parser.add_argument('--save_layers', metavar='', help='Specify against what layer we want to compute the cosine similarity analysis', default=['Conv2d', 'Linear'], nargs="+", type=str)
     parser.add_argument('--pretraining', metavar='', default='ImageNet', help='either [ImageNet] or [vanilla]')
     parser.add_argument('--matching_transform', metavar='', default=True, help='specify whether all members of a comparison set should have the same transformation applied to them (according to "affine_transf_code")')
     parser.add_argument('--use_cuda', default=torch.cuda.is_available(), type=lambda x: bool(int(x)), help='Whether to use GPU or not')

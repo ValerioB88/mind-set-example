@@ -26,6 +26,8 @@ python -m src.utils.cosine_similarity.compute_cossim_base_vs_folder \
             --repetitions 2  # For real experiment put at least 50
 ```
 
+
+
 The meaning of the `--affine_transf_code` optional args is explained below. 
 
 **(Notice how we always start the script as a module (the `-m` option), and from the root folder of this project, `mind-set`. Alway do that, otherwise it won't work)**
@@ -49,8 +51,19 @@ python -m src.utils.cosine_similarity.compute_cossim_across_folders \
                             --repetitions 2  # For real experiment put at least 50
 ```
 
+To perform the analysis run: 
+
+```
+python -m src.utils.cosine_similarity.examples.analysis_across_folders \
+                            --pickle_path ./results/examples/NAPvsMPlines/cossim_df.pickle \
+                            --result_folder ./results/examples/NAPvsMPlines/
+```
+
 ### Optional Arguments
-We should aim to keep experiments consistent, so I advice to generally stick with the default arguemnts. However, for your own entertainment you can explore different setups. A full list of optional arguments can be seen by running `python -m src.utils.cosine_similarity.compute_cossim_across_folders -h`. Here are some of them that deserve a longer explanation.
+We should aim to keep experiments consistent, so I advice to generally stick with the default arguments. However, for your own entertainment you can explore different setups. A full list of optional arguments can be seen by running `python -m src.utils.cosine_similarity.compute_cossim_across_folders -h`. Here are some of them that deserve a longer explanation.
+
+### Network_name
+`--network_name`: Choose between `alexnet`, `vgg11`, `vgg16`, `vgg11bn`, `vgg16bn`, `vgg19bn`, `resnet18`, `resnet50`, `resnet152`, `inception_v3` , `densenet121`, `densenet201`, `googlenet`. Default is `resnet152`. If you want to test a different network (from the defauls PyTorch nets) just ask me and I'll add it. If you want to test another network, you can ask me some guidelines on how to do so.
 
 ### Affine_transf_code
 You may want to augment the samples by using an affine transformation augmentation. Use the `--affine_transf_code` for that.

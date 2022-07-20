@@ -57,15 +57,14 @@ In this case each root folder will not contain other folders for classes (there 
 ...
 ```
 
-Example Usage
+Example Usage (we use a small version of the ebbinghaus dataset)
 ```
-python -m src.ebbinghaus.generate_datasets --num_training_data 6000
 
 python -m src.utils.decoder.train \
             --test_results_folder ./results/examples/ebbinghaus/ \
             --model_output_path ./models/examples/ebbinghaus.pt \
-            --train_dataset ./data/ebbinghaus/train_random_data_6000 \
-            --test_datasets ./data/ebbinghaus/test_random_data_2000 ./data/ebbinghaus/test_small_flankers_data_2000 ./data/ebbinghaus/test_big_flankers_data_2000
+            --train_dataset ./data/examples/ebbinghaus/train_random_data_100 \
+            --test_datasets ./data/examples/ebbinghaus/test_random_data_50 ./data/examples/ebbinghaus/test_small_flankers_data_50 ./data/examples/ebbinghaus/test_big_flankers_data_50
 ```
 
 
@@ -82,10 +81,10 @@ Similarly for regression, we compute the following metrics:
 Interrupting training with `CTRL+C` should actually end the training gracefully: the test dataset are computed one final time, the `csv` files are written in the appropriate folder, and the PyTorch model is also saved. In any case, a PyTorch `checkpoint` model is saved every epoch.
 
 #### Other options
-Check other otions with `python -m src.utils.decoder.train -h`. Let's try to all use the same default options when possible.
+Check other otions with `python -m src.utils.decoder.train -h`. Let's try to all use the same default options when possible. If you want to do something that you can't do with the optional arguments, contact me!
 
 ## Neptune.ai
-[Neptune.ai](ww.neptune.ai) is a tool for logging experiments on the web. You don't need to use Neptune, but my training loop codebase is well integrated with it: it will save sample images and log training/testing charts in the Neptune page.
+[Neptune.ai](www.neptune.ai) is a tool for logging experiments on the web. You don't need to use Neptune, but my training loop codebase is well integrated with it: it will save sample images and log training/testing charts in the Neptune page.
 If you have an account, set `--neptune_proj_name` to your project name (which must be created through the UI). Also follow the instruction to install the neptune-client and setup the API.  
 
 

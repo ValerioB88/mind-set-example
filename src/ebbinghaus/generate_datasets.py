@@ -71,12 +71,14 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--num_training_data', default=60000, type=int)
 parser.add_argument('--num_testing_data', default=2000, type=int)
+parser.add_argument('--folder', default='./data/ebbinghaus/')
+
 args = parser.parse_known_args()[0]
-EbbinghausRandomFlankers(path=f'./data/ebbinghaus/train_random_data_{args.num_training_data}', size_dataset=6000, img_size=224, background='black')
+EbbinghausRandomFlankers(path=f'./{args.folder}/train_random_data_{args.num_training_data}', size_dataset=args.num_training_data, img_size=224, background='black')
 
 
-EbbinghausRandomFlankers(path=f'./data/ebbinghaus/test_random_data_{args.num_testing_data}', size_dataset=2000, img_size=224, background='black')
+EbbinghausRandomFlankers(path=f'./{args.folder}/test_random_data_{args.num_testing_data}', size_dataset=args.num_testing_data, img_size=224, background='black')
 
-EbbinghausTestSmallFlankers(path=f'./data/ebbinghaus/test_small_flankers_data_{args.num_testing_data}', size_dataset=2000, img_size=224, background='black')
+EbbinghausTestSmallFlankers(path=f'./{args.folder}/test_small_flankers_data_{args.num_testing_data}', size_dataset=args.num_testing_data, img_size=224, background='black')
 
-EbbinghausTestBigFlankers(path=f'./data/ebbinghaus/test_big_flankers_data_{args.num_testing_data}', size_dataset=2000, img_size=224, background='black')
+EbbinghausTestBigFlankers(path=f'./{args.folder}/test_big_flankers_data_{args.num_testing_data}', size_dataset=args.num_testing_data, img_size=224, background='black')
