@@ -48,13 +48,21 @@ parser.add_argument('--stop_at_accuracy', metavar='', default=None, help='stop w
 parser.add_argument('--neptune_proj_name', metavar='', default=False,  help='if you want to log in neptune.ai, specify the project name. Really useful, but you need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation\nIf you DO use Neptune I automatically log many things including debug images through this script.')
 
 config = parser.parse_known_args()[0]
-# config = parser.parse_known_args(['--model_output_path', './models/ebbinghaus/prova.pt', '--train_dataset', './data/ebbinghaus/train_random_data', '--test_datasets',
-#     './data/ebbinghaus/test_random_data',
-#     './data/ebbinghaus/test_small_flankers_data',
-#     './data/ebbinghaus/test_big_flankers_data', '--neptune_proj_name', 'Ebbinghaus'])[0]
-#
+# config = parser.parse_known_args(['--model_output_path', './models/ebbinghaus/prova.pt', '--train_dataset', './data/examples/ebbinghaus/train_random_data_600', '--test_datasets',
+#     './data/examples/ebbinghaus/test_random_data_2000',
+#     './data/examples/ebbinghaus/test_small_flankers_data_2000',
+#     './data/examples/ebbinghaus/test_big_flankers_data_2000'])[0]
+
 # config = parser.parse_known_args(['--model_output_path', './models/ebbinghaus/prova.pt', '--train_dataset', './data/miniMNIST/training/', '--test_data', './data/miniMNIST/testing1/'])[0]
-#
+
+
+def assert_exists(path):
+    if not os.path.exists(path):
+        assert False, sty.fg.red +f"Path {path} doesn't exist!" + sty.rs.fg
+
+
+[assert_exists(p) for p in [config.train_dataset, *config.test_datasets]]
+
 config.train_dataset = config.train_dataset.rstrip('/')
 config.test_datasets = [i.rstrip('/') for i in config.test_datasets]
 
@@ -119,7 +127,7 @@ config.optimizers = [torch.optim.Adam(config.net.decoders[i].parameters(),
 
 train_loader = DataLoader(train_dataset,
                           batch_size=config.batch_size,
-                          drop_last=True,
+                          drop_last=False,
                           shuffle=True,
                           num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
                           timeout=0 if config.use_cuda and not config.is_pycharm else 0,
@@ -132,7 +140,7 @@ test_datasets = [fix_dataset(ds_type(root=path), name_ds=os.path.splitext(os.pat
 
 test_loaders = [DataLoader(td,
                            batch_size=config.batch_size,
-                           drop_last=True,
+                           drop_last=False,
                            num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
                            timeout=0 if config.use_cuda and not config.is_pycharm else 0,
                            pin_memory=True) for td in test_datasets]

@@ -57,14 +57,15 @@ In this case each root folder will not contain other folders for classes (there 
 ...
 ```
 
-Example Usage (we use a small version of the ebbinghaus dataset)
+Example Usage (we generate a small version of the ebbinghaus dataset)
 ```
+python -m src.ebbinghaus.generate_datasets --num_training_data 600 --num_testing_data 200 --folder ./data/examples/ebbinghaus
 
 python -m src.utils.decoder.train \
             --test_results_folder ./results/examples/ebbinghaus/ \
             --model_output_path ./models/examples/ebbinghaus.pt \
-            --train_dataset ./data/examples/ebbinghaus/train_random_data_100 \
-            --test_datasets ./data/examples/ebbinghaus/test_random_data_50 ./data/examples/ebbinghaus/test_small_flankers_data_50 ./data/examples/ebbinghaus/test_big_flankers_data_50
+            --train_dataset ./data/examples/ebbinghaus/train_random_data_600 \
+            --test_datasets ./data/examples/ebbinghaus/test_random_data_200 ./data/ebbinghaus/test_small_flankers_data_200 ./data/ebbinghaus/test_big_flankers_data_200
 ```
 
 
