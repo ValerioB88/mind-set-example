@@ -24,9 +24,9 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
 
     if method == 'regression':
         if train:
-            [logs[f'{logs_prefix}ema_rmse_{idx}'].add(torch.sqrt(ms)) for idx, ms in enumerate(loss_decoder)]
+            [logs[f'{logs_prefix}ema_rmse_{idx}'].add(torch.sqrt(ms).item()) for idx, ms in enumerate(loss_decoder)]
         else:
-            [logs[f'{logs_prefix}rmse_{idx}'].add(torch.sqrt(ms)) for idx, ms in enumerate(loss_decoder)]
+            [logs[f'{logs_prefix}rmse_{idx}'].add(torch.sqrt(ms).item()) for idx, ms in enumerate(loss_decoder)]
 
             logs[f'{logs_prefix}rmse'].add(torch.sqrt(loss / num_decoders).item())
 

@@ -13,10 +13,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--pickle_path')
 parser.add_argument('--result_folder', default=None)
 
-# args = parser.parse_known_args()[0]
+args = parser.parse_known_args()[0]
 
-args = parser.parse_args(['--pickle_path', './results/NAPvsMP/NAPvsMPlines/cossim_df.pickle'
-])
+# args = parser.parse_args(['--pickle_path', './results/NAPvsMP/NAPvsMPlines/cossim_df.pickle'
+# ])
 
 if args.result_folder is None:
     args.result_folder = os.path.dirname(args.pickle_path)
